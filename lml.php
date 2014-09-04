@@ -8,7 +8,7 @@
  * A fully object-oriented PHP framework.
  * Keep it light, magnificent, lovely.
  * 
- * $Id: [filename] $version yyyy-mm-dd hh:mm:ss author $
+ * #include "./.git/update.sh"  
  * 
  */
 
