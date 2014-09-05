@@ -107,7 +107,9 @@ class Lmlphp {
 		}
 		$p = DIRECTORY_SEPARATOR;
 		defined('PATH_PARAM') || define('PATH_PARAM', 'path');
-		defined('APP_DIR')||define('APP_DIR', realpath(dirname($_SERVER['SCRIPT_FILENAME'])));
+		define('SCRIPT_DIR', realpath(dirname($_SERVER['SCRIPT_FILENAME'])));
+		define('SCRIPT_PATH', SCRIPT_DIR.$p);
+		defined('APP_DIR')||define('APP_DIR', SCRIPT_DIR);
 		defined('APP_PATH')||define('APP_PATH', APP_DIR.$p);
 		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
 		defined('MODEL_DIR_NAME') || define('MODEL_DIR_NAME', 'model');
@@ -294,6 +296,7 @@ class Lmlphp {
 						$refine_str .= '^';
 						break;
 						
+					case T_EXTENDS:
 					case T_AS:
 					case T_INSTANCEOF:
 					// as
@@ -586,7 +589,7 @@ class LmlApp{
 				mkdir(MODEL_PATH, 0755, true);
 			}
 			if( !file_exists(APP_PATH.'.htaccess') ){
-				file_put_contents(APP_PATH.'.htaccess', "<IfModule mod_rewrite.c>\r\nRewriteEngine on\r\nRewriteCond %{REQUEST_FILENAME} !-d\r\nRewriteCond %{REQUEST_FILENAME} !-f\r\nRewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]\r\n</IfModule>");
+				file_put_contents(SCRIPT_PATH.'.htaccess', "<IfModule mod_rewrite.c>\r\nRewriteEngine on\r\nRewriteCond %{REQUEST_FILENAME} !-d\r\nRewriteCond %{REQUEST_FILENAME} !-f\r\nRewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]\r\n</IfModule>");
 			}
 		}
 		return self::$instance;
