@@ -8,13 +8,13 @@
  * A fully object-oriented PHP framework.
  * Keep it light, magnificent, lovely.
  * 
- * #include "./.git/update.sh"  
+ * $id: $
  * 
  */
 
 /**
 function getRemoteLmlPhp(){
-	$cache_filename = '~lmlcache.php';
+	$cache_filename = 'lml.min.php';
 	$remotelib = 'http://pro8091d8.pic12.websiteonline.cn/upload/lmlphp-release-2014-08-27-v1.txt';
 	if( file_exists( $cache_filename ) ) {
 		$cachemtime = filemtime($cache_filename);
@@ -107,15 +107,20 @@ class Lmlphp {
 		}
 		$p = DIRECTORY_SEPARATOR;
 		defined('PATH_PARAM') || define('PATH_PARAM', 'path');
-		defined('APP_DIR')||define('APP_DIR', dirname($_SERVER['SCRIPT_FILENAME']));
+		defined('APP_DIR')||define('APP_DIR', realpath(dirname($_SERVER['SCRIPT_FILENAME'])));
 		defined('APP_PATH')||define('APP_PATH', APP_DIR.$p);
-		defined('MODULE_PATH') || define('MODULE_PATH', APP_PATH.'module'.$p);
-		defined('MODEL_PATH') || define('MODEL_PATH', APP_PATH.'model'.$p);
-		defined('LIB_PATH') || define('LIB_PATH', APP_PATH.'lib'.$p);
-		defined('LOG_PATH') || define('LOG_PATH', APP_PATH.'log'.$p);
-		defined('THEMES_PATH') || define('THEMES_PATH', APP_PATH.'themes'.$p);
-		defined('DEFAULT_THEME_PATH') || define('DEFAULT_THEME_PATH', THEMES_PATH.'default'.$p);
-		
+		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
+		defined('MODEL_DIR_NAME') || define('MODEL_DIR_NAME', 'model');
+		defined('LIB_DIR_NAME') || define('LIB_DIR_NAME', 'lib');
+		defined('LOG_DIR_NAME') || define('LOG_DIR_NAME', 'log');
+		defined('THEMES_DIR_NAME') || define('THEMES_DIR_NAME', 'themes');
+		defined('DEFAULT_THEMES_NAME') || define('DEFAULT_THEMES_NAME', 'default');
+		defined('MODULE_PATH') || define('MODULE_PATH', APP_PATH.MODULE_DIR_NAME.$p);
+		defined('MODEL_PATH') || define('MODEL_PATH', APP_PATH.MODEL_DIR_NAME.$p);
+		defined('LIB_PATH') || define('LIB_PATH', APP_PATH.LIB_DIR_NAME.$p);
+		defined('LOG_PATH') || define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
+		defined('THEMES_PATH') || define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
+		defined('DEFAULT_THEME_PATH') || define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
 		date_default_timezone_set('PRC');
 		set_error_handler(array('LmlErrHandle', 'onErr'));
 		set_exception_handler(array('LmlErrHandle', 'onException'));
@@ -156,34 +161,34 @@ class Lmlphp {
 	public function getResval(&$arg=''){
 		if( func_num_args() > 0 ){
 			$arg = self::$resval;
-			return self::$instance;
+			return $this;
 		}
-		return self::$resval;
+		return $this;
 	}
 	
 	public function setOutDateInfo($flag){
 		self::$isOutDateInfo = $flag;
-		return self::$instance;
+		return $this;
 	}
 	
 	public function setSplit($flag){
 		self::$isOutSplit = $flag;
-		return self::$instance;
+		return $this;
 	}
 	
 	public function setSuffix($suffix){
 		self::$filenameSuffix = $suffix;
-		return self::$instance;
+		return $this;
 	}
 	
 	public function setPrefix($preffix){
 		self::$filenamePrefix = $preffix;
-		return self::$instance;
+		return $this;
 	}
 	
 	public function setFlag($flag){
 		self::$flags = $flag;
-		return self::$instance;
+		return $this;
 	}
 	
 	public function app(){
@@ -211,7 +216,7 @@ class Lmlphp {
 				(self::$isOutDateInfo?'['.date('c').'] ':'')
 				.($content=='' ? self::$resval : $content)
 				.(self::$isOutSplit ? ENDL.self::$split.ENDL : ENDL), self::$flags );
-		return self::$instance;
+		return $this;
 	}
 	
 	/**
@@ -235,7 +240,7 @@ class Lmlphp {
 		.':<br/><div><pre>"+document.getElementById("'.$id_identify.'_'.$i.'").innerHTML+"</pre></div><hr/>";'.
 		'document.getElementById("num_'.$id_identify.'").innerHTML="'.($i+1).'";</script>';
 		$i++;
-		return self::$instance;
+		return $this;
 	}
 	
 	public function refineCode($content, &$refinedCode='') {
@@ -351,7 +356,7 @@ class Lmlphp {
 			$refinedCode = $refine_str;
 		}
 		self::$resval = $refine_str;
-		return self::$instance;
+		return $this;
 	}
 	
 	/**
@@ -404,7 +409,7 @@ class Lmlphp {
 		}
 		if( $flag ){
 			self::$resval = $retlist;
-			return self::$instance;
+			return $this;
 		}
 	}
 
@@ -626,9 +631,10 @@ class LmlApp{
 						$this->path[1] = $v['a'];
 					}
 				}
+				return $this;
 			}
 		}
-		return self::$instance;
+		return $this;
 	}
 
 	public function run(){
