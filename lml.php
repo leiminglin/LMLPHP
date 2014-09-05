@@ -543,6 +543,8 @@ class LmlApp{
 			$this->matchPath($path_str);
 		}else if( isset( $_SERVER['PATH_INFO'] ) ){
 			$this->matchPath($_SERVER['PATH_INFO']);
+		}else if( isset( $_SERVER['REQUEST_URI'] ) ){
+			$this->matchPath($_SERVER['REQUEST_URI']);
 		}else {
 			if( isset($_GET[PATH_PARAM]) ){
 				$this->matchPath( $_GET[PATH_PARAM] );
