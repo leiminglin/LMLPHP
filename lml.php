@@ -113,6 +113,9 @@ class Lmlphp {
 			define('APP_DIR', SCRIPT_PATH.'App');
 			$app_abs_dir = APP_DIR;
 		}else{
+			if(!is_dir(APP_DIR)){
+				LmlUtils::mkdirDeep(APP_DIR);
+			}
 			$app_abs_dir = realpath(APP_DIR);
 		}
 		defined('APP_PATH')||define('APP_PATH', $app_abs_dir.$p);
@@ -469,7 +472,7 @@ class LmlUtils{
 	public static function logPre($filename, &$content, $in_charset, $out_charset){
 		if (!file_exists($filename)){
 			$dirpath = substr($filename, 0, strrpos($filename, DIRECTORY_SEPARATOR));
-			$dirpath && !file_exists($dirpath) && mkdir($dirpath, 0777, true);
+			$dirpath && !file_exists($dirpath) && LmlUtils::mkdirDeep($dirpath);
 		}
 		if( file_exists($filename) && filesize($filename) > 2097152 ){
 			$dotpos = strrpos($filename, '.');
@@ -483,6 +486,10 @@ class LmlUtils{
 		if( $in_charset != '' && $out_charset != '' ){
 			$content = iconv($in_charset, $out_charset, $content);
 		}
+	}
+	
+	public static function mkdirDeep($p){
+		return mkdir($p, 0755, true);
 	}
 	
 }
@@ -585,7 +592,7 @@ class LmlApp{
 			self::$instance = new self;
 		}
 		if( !is_dir(MODULE_PATH) ){
-			mkdir(MODULE_PATH, 0755, true);
+			LmlUtils::mkdirDeep(MODULE_PATH);
 			if( !file_exists(MODULE_PATH.'ModuleIndex.php') ){
 				file_put_contents(MODULE_PATH.'ModuleIndex.php', "<?php\r\nclass ModuleIndex extends LmlBase{\r\n\tpublic function Index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
 			}
@@ -593,13 +600,13 @@ class LmlApp{
 				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\r\nabstract class LmlBase{\r\n\tpublic \$v = array();\r\n\tpublic function __call(\$name, \$arg){\r\n\t\t// TODO handle some unknow function\r\n\t}\r\n\tpublic function assign(\$k, \$v){\r\n\t\t\$this->v[\$k] = \$v;\r\n\t}\r\n\tpublic function display(){\r\n\t\textract(\$this->v, EXTR_OVERWRITE);\r\n\t\tinclude DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';\r\n\t}\r\n}");
 			}
 			if( !is_dir(DEFAULT_THEME_PATH.'index') ){
-				mkdir(DEFAULT_THEME_PATH.'index', 0755, true);
+				LmlUtils::mkdirDeep(DEFAULT_THEME_PATH.'index');
 			}
 			if( !is_dir(LIB_PATH) ){
-				mkdir(LIB_PATH, 0755, true);
+				LmlUtils::mkdirDeep(LIB_PATH);
 			}
 			if( !is_dir(MODEL_PATH) ){
-				mkdir(MODEL_PATH, 0755, true);
+				LmlUtils::mkdirDeep(MODEL_PATH);
 			}
 			if( !file_exists(APP_PATH.'.htaccess') ){
 				file_put_contents(APP_PATH.'.htaccess', "Deny from all");
@@ -902,7 +909,7 @@ class LmlSpider implements LmlToolInterface{
 		if( substr($savepath, -1) != DIRECTORY_SEPARATOR ){
 			$savepath .= DIRECTORY_SEPARATOR;
 		}
-		if( !file_exists($savepath) && !mkdir($savepath, 0777, true) ){
+		if( !file_exists($savepath) && !LmlUtils::mkdirDeep($savepath) ){
 			throw new LmlException('mkdir fail. path is '.$savepath);
 		}
 		
