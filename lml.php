@@ -123,7 +123,8 @@ class Lmlphp {
 		defined('LOG_PATH') || define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
 		defined('THEMES_PATH') || define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
 		defined('DEFAULT_THEME_PATH') || define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
-		date_default_timezone_set('PRC');
+		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
+		date_default_timezone_set(TIMEZONE);
 		set_error_handler(array('LmlErrHandle', 'onErr'));
 		set_exception_handler(array('LmlErrHandle', 'onException'));
 		register_shutdown_function(array('LmlErrHandle', 'onFatalErr'));
