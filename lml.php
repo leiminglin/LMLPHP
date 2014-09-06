@@ -109,7 +109,7 @@ class Lmlphp {
 		defined('PATH_PARAM') || define('PATH_PARAM', 'path');
 		define('SCRIPT_DIR', realpath(dirname($_SERVER['SCRIPT_FILENAME'])));
 		define('SCRIPT_PATH', SCRIPT_DIR.$p);
-		defined('APP_DIR')||define('APP_DIR', './App');
+		defined('APP_DIR')||define('APP_DIR', SCRIPT_PATH.'App');
 		defined('APP_PATH')||define('APP_PATH', APP_DIR.$p);
 		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
 		defined('MODEL_DIR_NAME') || define('MODEL_DIR_NAME', 'model');
@@ -125,6 +125,7 @@ class Lmlphp {
 		defined('DEFAULT_THEME_PATH') || define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
 		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
 		date_default_timezone_set(TIMEZONE);
+		error_reporting(0);
 		set_error_handler(array('LmlErrHandle', 'onErr'));
 		set_exception_handler(array('LmlErrHandle', 'onException'));
 		register_shutdown_function(array('LmlErrHandle', 'onFatalErr'));
@@ -483,7 +484,7 @@ class LmlUtils{
 class LmlErrHandle{
 
 	public static function onErr($errno, $errstr, $errfile, $errline){
-		$errorStr = IS_CLI?'':$_SERVER['REQUEST_URI'].' ';
+		$errorStr = IS_CLI?'':$_SERVER['REQUEST_URI'].', ';
 		switch ($errno) {
 			case E_ERROR:
 			case E_USER_ERROR:
@@ -500,20 +501,20 @@ class LmlErrHandle{
 	}
 	
 	public static function onException($e){
-		self::log((IS_CLI?'':$_SERVER['REQUEST_URI'].' ').$e->__toString());
+		self::log((IS_CLI?'':$_SERVER['REQUEST_URI'].', ').$e->__toString());
 	}
 	
 	public static function onFatalErr() {
-		if ( !($e = error_get_last()) ) {
+		if ( ($e = error_get_last())!=null ) {
 			switch($e['type']){
 				case E_ERROR:
 				case E_PARSE:
 				case E_CORE_ERROR:
 				case E_COMPILE_ERROR:
 				case E_USER_ERROR:
-					ob_end_clean();
 					$e['REQUEST_URI'] = IS_CLI?'':$_SERVER['REQUEST_URI'];
-					self::log($e);
+					$errstr = $e['REQUEST_URI'].', '.$e['message'].' in '.$e['file'].' line '.$e['line'];
+					self::log($errstr);
 					break;
 			}
 		}
@@ -521,7 +522,7 @@ class LmlErrHandle{
 	
 	private static function log($content, $filename='', $in_charset='', $out_charset=''){
 		if( $filename == '' ){
-			$filename = LOG_PATH.'log_'.date("Y-m-d").'.txt';
+			$filename = realpath(LOG_PATH).'log_'.date("Y-m-d").'.txt';
 		}
 		LmlUtils::logPre($filename, $content, $in_charset, $out_charset);
 		file_put_contents( $filename, date('[ c ] ').$content.ENDL, FILE_APPEND );
