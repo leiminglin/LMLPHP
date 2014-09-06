@@ -547,15 +547,14 @@ class LmlApp{
 
 	private function __construct(){
 		$word_regexp = '([a-zA-Z_][\w]{0,29})';
-		$this->pathPattern = '/^.*?'.$word_regexp.'\/'.$word_regexp.'|^.*?'.$word_regexp.'/';
+		$this->pathPattern = '/^\/'.$word_regexp.'\/'.$word_regexp.'|^\/'.$word_regexp.'/';
 		if( IS_CLI ){
 			$path_str = isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:'';
 			$this->matchPath($path_str);
 		}else if( isset( $_SERVER['PATH_INFO'] ) ){
 			$this->matchPath($_SERVER['PATH_INFO']);
-		}else if( isset( $_SERVER['REQUEST_URI'] ) ){
-			$this->matchPath($_SERVER['REQUEST_URI']);
-		}else {
+		}else if( isset( $_SERVER['REQUEST_URI'] ) && 
+			!$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/', '', $_SERVER['REQUEST_URI'])) ){
 			if( isset($_GET[PATH_PARAM]) ){
 				$this->matchPath( $_GET[PATH_PARAM] );
 			}elseif( isset($_GET['m']) ){
@@ -576,7 +575,9 @@ class LmlApp{
 			}else{
 				$this->path = array($matches[3], 'index');
 			}
+			return true;
 		}
+		return false;
 	}
 
 	public static function getInstance(){
