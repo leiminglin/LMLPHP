@@ -284,6 +284,7 @@ class Lmlphp {
 					case T_INCLUDE_ONCE:
 					case T_REQUIRE:
 					case T_REQUIRE_ONCE:
+					case T_INTERFACE:
 						$refine_str .= trim($tokens[$i][1]).' ';
 						break;
 					case T_LOGICAL_OR:
@@ -299,6 +300,7 @@ class Lmlphp {
 					case T_EXTENDS:
 					case T_AS:
 					case T_INSTANCEOF:
+					case T_IMPLEMENTS:
 					// as
 						$refine_str .= ' '.$tokens[$i][1].' ';
 						break;
@@ -746,7 +748,11 @@ class LmlDispatch{
 
 class LmlException extends Exception{}
 
-class LmlSpider {
+interface LmlToolInterface{
+	public static function start($conf);
+}
+
+class LmlSpider implements LmlToolInterface{
 	
 	// 当前访问URL
 	private $currentUrl;
