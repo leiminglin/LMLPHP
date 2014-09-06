@@ -57,8 +57,8 @@ function lml($s='') {
  */
 class Lmlphp {
 
-	private static $appName = 'LMLPHP';
-	private static $version = '1.0';
+	const appName = 'LMLPHP';
+	const version = '1.0';
 	private static $instance = '';
 	private static $split = '';
 	private static $filenamePrefix = 'debug_';
@@ -109,8 +109,13 @@ class Lmlphp {
 		defined('PATH_PARAM') || define('PATH_PARAM', 'path');
 		define('SCRIPT_DIR', realpath(dirname($_SERVER['SCRIPT_FILENAME'])));
 		define('SCRIPT_PATH', SCRIPT_DIR.$p);
-		defined('APP_DIR')||define('APP_DIR', SCRIPT_PATH.'App');
-		defined('APP_PATH')||define('APP_PATH', APP_DIR.$p);
+		if( !defined('APP_DIR') ){
+			define('APP_DIR', SCRIPT_PATH.'App');
+			$app_abs_dir = APP_DIR;
+		}else{
+			$app_abs_dir = realpath(APP_DIR);
+		}
+		defined('APP_PATH')||define('APP_PATH', $app_abs_dir.$p);
 		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
 		defined('MODEL_DIR_NAME') || define('MODEL_DIR_NAME', 'model');
 		defined('LIB_DIR_NAME') || define('LIB_DIR_NAME', 'lib');
@@ -212,7 +217,7 @@ class Lmlphp {
 	 */
 	public function fileDebug($content='', $filename='', $in_charset='', $out_charset=''){
 		if( $filename == '' ){
-			$filename = self::$appName.'_debug'.DIRECTORY_SEPARATOR
+			$filename = self::appName.'_debug'.DIRECTORY_SEPARATOR
 			.self::$filenamePrefix.date("Y-m-d").self::$filenameSuffix;
 		}
 		LmlUtils::logPre($filename, $content, $in_charset, $out_charset);
@@ -287,6 +292,7 @@ class Lmlphp {
 					case T_REQUIRE:
 					case T_REQUIRE_ONCE:
 					case T_INTERFACE:
+					case T_CONST:
 						$refine_str .= trim($tokens[$i][1]).' ';
 						break;
 					case T_LOGICAL_OR:
@@ -447,7 +453,7 @@ class LmlUtils{
 	public static function getUniqueString(){
 		static $i = 0;
 		list($msec, $sec) = explode(' ', microtime());
-		return 'lmlphp'.$i++.'_'.$sec.'_'.substr($msec, 2);
+		return Lmlphp::appName.$i++.'_'.$sec.'_'.substr($msec, 2);
 	}
 	
 	public static function autoload($arg){
@@ -488,13 +494,13 @@ class LmlErrHandle{
 		switch ($errno) {
 			case E_ERROR:
 			case E_USER_ERROR:
-				$errorStr .= 'error:['.$errno.']'.$errstr.' '.$errfile.' line '.$errline;
+				$errorStr .= Lmlphp::appName.' Error:['.$errno.']'.$errstr.' '.$errfile.' line '.$errline;
 				break;
 			case E_STRICT:
 			case E_USER_WARNING:
 			case E_USER_NOTICE:
 			default:
-				$errorStr .= 'notice:['.$errno.']'.$errstr.' '.$errfile.' line '.$errline;
+				$errorStr .= Lmlphp::appName.' Notice:['.$errno.']'.$errstr.' '.$errfile.' line '.$errline;
 				break;
 		}
 		self::log($errorStr);
@@ -513,7 +519,7 @@ class LmlErrHandle{
 				case E_COMPILE_ERROR:
 				case E_USER_ERROR:
 					$e['REQUEST_URI'] = IS_CLI?'':$_SERVER['REQUEST_URI'];
-					$errstr = $e['REQUEST_URI'].', '.$e['message'].' in '.$e['file'].' line '.$e['line'];
+					$errstr = $e['REQUEST_URI'].', '.Lmlphp::appName.' Fatal Error:'.$e['message'].' in '.$e['file'].' line '.$e['line'];
 					self::log($errstr);
 					break;
 			}
@@ -522,7 +528,7 @@ class LmlErrHandle{
 	
 	private static function log($content, $filename='', $in_charset='', $out_charset=''){
 		if( $filename == '' ){
-			$filename = realpath(LOG_PATH).'log_'.date("Y-m-d").'.txt';
+			$filename = LOG_PATH.'log_'.date("Y-m-d").'.txt';
 		}
 		LmlUtils::logPre($filename, $content, $in_charset, $out_charset);
 		file_put_contents( $filename, date('[ c ] ').$content.ENDL, FILE_APPEND );
@@ -535,7 +541,7 @@ class LmlApp{
 	private static $mInstances;
 	
 	private $pathPattern;
-	private $route=array();
+	private $lastRoute=array();
 	private $path=array('Index', 'index');
 	private $callback;
 
@@ -648,23 +654,32 @@ class LmlApp{
 		}
 		return $this;
 	}
+	
+	public function addLastRouter($v){
+		$this->lastRoute = $v;
+		return $this;
+	}
+	
+	private function callUserFunc($cb){
+		if( count($cb) == 1 ){
+			if( function_exists($cb[0]) ){
+				call_user_func($cb[0]);
+			}else{
+				throw new LmlException('Function:'.$cb[0].' not exists');
+			}
+		}else if( count($cb) == 2 ){
+			if( method_exists($cb[0], $cb[1]) ){
+				call_user_func($cb);
+			}else{
+				throw new LmlException('Class:'.$cb[0].',method:'.$cb[1].' not exists');
+			}
+		}
+	}
 
 	public function run(){
 		$cb = $this->callback;
 		if( is_array($cb) ){
-			if( count($cb) == 1 ){
-				if( function_exists($cb[0]) ){
-					call_user_func($cb[0]);
-				}else{
-					throw new LmlException('Function:'.$cb[0].' not exists');
-				}
-			}else if( count($cb) == 2 ){
-				if( method_exists($cb[0], $cb[1]) ){
-					call_user_func($cb);
-				}else{
-					throw new LmlException('Class:'.$cb[0].',method:'.$cb[1].' not exists');
-				}
-			}
+			$this->callUserFunc($cb);
 			return;
 		}
 		$path = $this->path;
@@ -672,11 +687,16 @@ class LmlApp{
 		if( class_exists($m) ){
 			$class = new ReflectionClass($m);
 		}else{
-			LmlUtils::_404();
-			throw new LmlException('LMLPHP framework. ERROR:Class '.$m.' not found.');
+			if( $this->lastRoute ){
+				$this->callUserFunc($this->lastRoute);
+				return;
+			}else{
+				LmlUtils::_404();
+				throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' not found.');
+			}
 		}
 		if( $class->isAbstract() ){
-			throw new LmlException('LMLPHP framework. ERROR:Class '.$m.' is Abstact.');
+			throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' is Abstact.');
 		}
 		$a = $path[1];
 		if( self::$mInstances[$m.$a] ){
