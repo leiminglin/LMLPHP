@@ -118,7 +118,7 @@ class Lmlphp {
 			}
 			$app_abs_dir = realpath(APP_DIR);
 		}
-		defined('APP_PATH')||define('APP_PATH', $app_abs_dir.$p);
+		define('APP_PATH', $app_abs_dir.$p);
 		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
 		defined('MODEL_DIR_NAME') || define('MODEL_DIR_NAME', 'model');
 		defined('LIB_DIR_NAME') || define('LIB_DIR_NAME', 'lib');
