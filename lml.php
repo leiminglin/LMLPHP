@@ -488,8 +488,8 @@ class LmlUtils{
 		}
 	}
 	
-	public static function mkdirDeep($p){
-		return mkdir($p, 0755, true);
+	public static function mkdirDeep($p, $mode=0755){
+		return mkdir($p, $mode, true);
 	}
 	
 }
