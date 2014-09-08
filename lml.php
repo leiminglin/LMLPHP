@@ -125,12 +125,12 @@ class Lmlphp {
 		defined('LOG_DIR_NAME') || define('LOG_DIR_NAME', 'log');
 		defined('THEMES_DIR_NAME') || define('THEMES_DIR_NAME', 'themes');
 		defined('DEFAULT_THEMES_NAME') || define('DEFAULT_THEMES_NAME', 'default');
-		defined('MODULE_PATH') || define('MODULE_PATH', APP_PATH.MODULE_DIR_NAME.$p);
-		defined('MODEL_PATH') || define('MODEL_PATH', APP_PATH.MODEL_DIR_NAME.$p);
-		defined('LIB_PATH') || define('LIB_PATH', APP_PATH.LIB_DIR_NAME.$p);
-		defined('LOG_PATH') || define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
-		defined('THEMES_PATH') || define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
-		defined('DEFAULT_THEME_PATH') || define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
+		define('MODULE_PATH', APP_PATH.MODULE_DIR_NAME.$p);
+		define('MODEL_PATH', APP_PATH.MODEL_DIR_NAME.$p);
+		define('LIB_PATH', APP_PATH.LIB_DIR_NAME.$p);
+		define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
+		define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
+		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
 		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
 		date_default_timezone_set(TIMEZONE);
 		error_reporting(0);
