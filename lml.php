@@ -131,6 +131,7 @@ class Lmlphp {
 		define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
 		define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
 		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
+		define('WEB_PATH', preg_replace('/[^\/]+\.php$/', '', $_SERVER['SCRIPT_NAME']));
 		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
 		date_default_timezone_set(TIMEZONE);
 		error_reporting(0);
