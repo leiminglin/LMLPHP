@@ -641,7 +641,7 @@ class LmlApp{
 		}
 		foreach ($r as $k=>$v){
 			$matches = '';
-			if( preg_match('/'.$k.'/', $path, $matches) ){
+			if( preg_match($k, $path, $matches) ){
 				if( count($matches) > 1 && isset($v['param']) && is_array($v['param']) ){
 					foreach ( $v['param'] as $x=>$y ){
 						$_GET[$y] = isset($matches[$x+1])?$matches[$x+1]:'';
