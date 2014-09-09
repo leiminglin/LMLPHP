@@ -550,7 +550,7 @@ class LmlApp{
 	
 	private $pathPattern;
 	private $lastRoute=array();
-	private $path=array('Index', 'index');
+	private $path=array('index', 'index');
 	private $callback;
 
 	private function __construct(){
