@@ -595,7 +595,7 @@ class LmlApp{
 		if( !is_dir(MODULE_PATH) ){
 			LmlUtils::mkdirDeep(MODULE_PATH);
 			if( !file_exists(MODULE_PATH.'ModuleIndex.php') ){
-				file_put_contents(MODULE_PATH.'ModuleIndex.php', "<?php\r\nclass ModuleIndex extends LmlBase{\r\n\tpublic function index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
+				file_put_contents(MODULE_PATH.'ModuleIndex.php', "<?php\r\nclass ModuleIndex extends LmlBase{\r\n\tpublic function index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;Welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
 			}
 			if( !file_exists(MODULE_PATH.'LmlBase.php') ){
 				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\r\nabstract class LmlBase{\r\n\tpublic \$v = array();\r\n\tpublic function __call(\$name, \$arg){\r\n\t\t// TODO handle some unknow function\r\n\t}\r\n\tpublic function assign(\$k, \$v){\r\n\t\t\$this->v[\$k] = \$v;\r\n\t}\r\n\tpublic function display(){\r\n\t\textract(\$this->v, EXTR_OVERWRITE);\r\n\t\tinclude DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';\r\n\t}\r\n}");
