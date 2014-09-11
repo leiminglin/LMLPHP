@@ -24,8 +24,8 @@ function getRemoteLmlPhp(){
 		}
 		$header = get_headers($remotelib);
 		foreach ($header as $k){
-			if( preg_match('/^Last\-Modified:/i', $k) ){
-				$lastmtime = strtotime(preg_replace('/^Last\-Modified:/i', '', $k));
+			if( preg_match('/^Last-Modified:/i', $k) ){
+				$lastmtime = strtotime(preg_replace('/^Last-Modified:/i', '', $k));
 				break;
 			}
 		}
