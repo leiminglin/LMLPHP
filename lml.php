@@ -693,10 +693,17 @@ class LmlApp{
 		}
 		$path = $this->path;
 		$m = 'Module'.ucfirst($path[0]);
+		$a = $path[1];
+		defined('C_MODULE') || define('C_MODULE', $path[0]);
+		defined('C_ACTION') || define('C_ACTION', $a);
 		if( class_exists($m) ){
 			$class = new ReflectionClass($m);
 		}else{
-			if( $this->lastRoute ){
+			$v = DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
+			if( file_exists( $v ) ){
+				include $v;
+				return;
+			}else if( $this->lastRoute ){
 				$this->callUserFunc($this->lastRoute);
 				return;
 			}else{
@@ -707,7 +714,6 @@ class LmlApp{
 		if( $class->isAbstract() ){
 			throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' is Abstact.');
 		}
-		$a = $path[1];
 		if( self::$mInstances[$m.$a] ){
 			$o = self::$mInstances[$m.$a];
 		}else{
@@ -716,8 +722,6 @@ class LmlApp{
 		}
 		
 		try{
-			defined('C_MODULE') || define('C_MODULE', $path[0]);
-			defined('C_ACTION') || define('C_ACTION', $a);
 			$method = new ReflectionMethod($o, $a);
 			if($method->isPublic()) {
 				if($class->hasMethod('_front_'.$a)) {
