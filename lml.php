@@ -694,8 +694,8 @@ class LmlApp{
 		$path = $this->path;
 		$m = 'Module'.ucfirst($path[0]);
 		$a = $path[1];
-		defined('C_MODULE') || define('C_MODULE', $path[0]);
-		defined('C_ACTION') || define('C_ACTION', $a);
+		defined('C_MODULE') || define('C_MODULE', strtolower($path[0]));
+		defined('C_ACTION') || define('C_ACTION', strtolower($a));
 		if( class_exists($m) ){
 			$class = new ReflectionClass($m);
 		}else{
