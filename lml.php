@@ -552,6 +552,7 @@ class LmlApp{
 	private $lastRoute=array();
 	private $path=array('index', 'index');
 	private $callback;
+	private static $realRequestUri;
 
 	private function __construct(){
 		$word_regexp = '([a-zA-Z_][\w]{0,29})';
@@ -562,7 +563,7 @@ class LmlApp{
 		}else if( isset( $_SERVER['PATH_INFO'] ) ){
 			$this->matchPath($_SERVER['PATH_INFO']);
 		}else if( isset( $_SERVER['REQUEST_URI'] ) && 
-			!$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/', '', $_SERVER['REQUEST_URI'])) ){
+			!$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/', '', self::$realRequestUri)) ){
 			if( isset($_GET[PATH_PARAM]) ){
 				$this->matchPath( $_GET[PATH_PARAM] );
 			}elseif( isset($_GET['m']) ){
@@ -589,6 +590,18 @@ class LmlApp{
 	}
 
 	public static function getInstance(){
+		$script_name = $_SERVER['SCRIPT_NAME'];
+		$request_uri = $_SERVER['REQUEST_URI'];
+		if( basename($script_name) != trim($script_name, '/') ){
+			// 项目入口在document root下级文件夹
+			$script_dir = dirname($script_name);
+			$script_dir_pattern = str_replace(array('.', '/'), array('\\.', '\/'), $script_dir);
+			$path_matches = '';
+			preg_match('/^'.$script_dir_pattern.'(.*)$/i', $request_uri, $path_matches);
+			self::$realRequestUri = isset($path_matches[1])?$path_matches[1]:'';
+		}else{
+			self::$realRequestUri = $request_uri;
+		}
 		if( !self::$instance ){
 			self::$instance = new self;
 		}
@@ -627,18 +640,7 @@ class LmlApp{
 		if( IS_CLI ){
 			$path = isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:'';
 		}else{
-			$script_name = $_SERVER['SCRIPT_NAME'];
-			$request_uri = $_SERVER['REQUEST_URI'];
-			if( basename($script_name) != trim($script_name, '/') ){
-				// 项目入口在document root下级文件夹
-				$script_dir = dirname($script_name);
-				$script_dir_pattern = str_replace(array('.', '/'), array('\\.', '\/'), $script_dir);
-				$path_matches = '';
-				preg_match('/^'.$script_dir_pattern.'(.*)$/i', $request_uri, $path_matches);
-				$path = isset($path_matches[1])?$path_matches[1]:'';
-			}else{
-				$path = $request_uri;
-			}
+			$path = self::$realRequestUri;
 		}
 		foreach ($r as $k=>$v){
 			$matches = '';
