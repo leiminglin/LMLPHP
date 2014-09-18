@@ -708,14 +708,13 @@ class LmlApp{
 			$v = DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
 			if( file_exists( $v ) ){
 				include $v;
-				return $this->show();
 			}else if( $this->lastRoute ){
 				$this->callUserFunc($this->lastRoute);
-				return $this->show();
 			}else{
 				LmlUtils::_404();
 				throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' not found.');
 			}
+			return $this->show();
 		}
 		if( $class->isAbstract() ){
 			throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' is Abstact.');
