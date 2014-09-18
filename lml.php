@@ -119,6 +119,8 @@ class Lmlphp {
 			$app_abs_dir = realpath(APP_DIR);
 		}
 		define('APP_PATH', $app_abs_dir.$p);
+		defined('CONTENT_TYPE') || define('CONTENT_TYPE', 'text/html');
+		defined('CHARSET') || define('CHARSET', 'utf-8');
 		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
 		defined('MODEL_DIR_NAME') || define('MODEL_DIR_NAME', 'model');
 		defined('LIB_DIR_NAME') || define('LIB_DIR_NAME', 'lib');
@@ -688,10 +690,12 @@ class LmlApp{
 	}
 
 	public function run(){
+		ob_start();
+		ob_implicit_flush(0);
 		$cb = $this->callback;
 		if( is_array($cb) ){
 			$this->callUserFunc($cb);
-			return;
+			return $this->show();
 		}
 		$path = $this->path;
 		$m = 'Module'.ucfirst($path[0]);
@@ -704,10 +708,10 @@ class LmlApp{
 			$v = DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
 			if( file_exists( $v ) ){
 				include $v;
-				return;
+				return $this->show();
 			}else if( $this->lastRoute ){
 				$this->callUserFunc($this->lastRoute);
-				return;
+				return $this->show();
 			}else{
 				LmlUtils::_404();
 				throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' not found.');
@@ -747,6 +751,15 @@ class LmlApp{
 			$method->invokeArgs($o, array($a,''));
 			exit;
 		}
+		return $this->show();
+	}
+	
+	private function show(){
+		if(!headers_sent()){
+			header('X-Powered-By:LMLPHP');
+			header('Content-Type:'.CONTENT_TYPE.'; charset='.CHARSET);
+		}
+		echo ob_get_clean();
 	}
 }
 
