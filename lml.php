@@ -346,7 +346,17 @@ class Lmlphp {
 							}
 						}
 						break;
-						
+					case T_ECHO:
+						$refine_str .= $tokens[$i][1];
+						for($x=$i+1; $x<$j; $x++){
+							if(is_array($tokens[$x]) && trim($tokens[$x][1]) != ''){
+								if( token_name($tokens[$x][0]) == "T_STRING" ){
+									$refine_str .= ' ';
+								}
+								break;
+							}
+						}
+						break;
 					case T_ELSE:
 					// else 当else 后面没有{时
 						$refine_str .= $tokens[$i][1];
