@@ -602,6 +602,9 @@ class LmlApp{
 	}
 
 	public static function getInstance(){
+		if( self::$instance ){
+			return self::$instance;
+		}
 		$script_name = $_SERVER['SCRIPT_NAME'];
 		$request_uri = $_SERVER['REQUEST_URI'];
 		if( basename($script_name) != trim($script_name, '/') ){
@@ -613,9 +616,6 @@ class LmlApp{
 			self::$realRequestUri = isset($path_matches[1])?$path_matches[1]:'';
 		}else{
 			self::$realRequestUri = $request_uri;
-		}
-		if( !self::$instance ){
-			self::$instance = new self;
 		}
 		if( !is_dir(MODULE_PATH) ){
 			LmlUtils::mkdirDeep(MODULE_PATH);
@@ -641,7 +641,7 @@ class LmlApp{
 				file_put_contents(SCRIPT_PATH.'.htaccess', "<IfModule mod_rewrite.c>\r\nRewriteEngine on\r\nRewriteCond %{REQUEST_FILENAME} !-d\r\nRewriteCond %{REQUEST_FILENAME} !-f\r\nRewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]\r\n</IfModule>");
 			}
 		}
-		return self::$instance;
+		return self::$instance = new self;
 	}
 	
 	public function addRouter($r){
