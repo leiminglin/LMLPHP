@@ -764,16 +764,18 @@ class LmlApp{
 	}
 	
 	private function show(){
-		$h = headers_list();
-		if( $h ){
-			foreach ($h as $v){
-				if(preg_match('/^Content-Type:(.*)$/i', $v, $m)){
-					break;
+		if( !headers_sent() ){
+			$h = headers_list();
+			if( $h ){
+				foreach ($h as $v){
+					if(preg_match('/^Content-Type:(.*)$/i', $v, $m)){
+						break;
+					}
 				}
 			}
+			header('Content-Type:'.(isset($m[1])&&$m[1]?$m[1]:CONTENT_TYPE.'; charset='.CHARSET));
+			header('X-Powered-By:LMLPHP');
 		}
-		header('Content-Type:'.(isset($m[1])&&$m[1]?$m[1]:CONTENT_TYPE.'; charset='.CHARSET));
-		header('X-Powered-By:LMLPHP');
 		echo ob_get_clean();
 	}
 }
