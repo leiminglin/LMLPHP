@@ -764,10 +764,16 @@ class LmlApp{
 	}
 	
 	private function show(){
-		if(!headers_sent()){
-			header('X-Powered-By:LMLPHP');
-			header('Content-Type:'.CONTENT_TYPE.'; charset='.CHARSET);
+		$h = headers_list();
+		if( $h ){
+			foreach ($h as $v){
+				if(preg_match('/^Content-Type:(.*)$/i', $v, $m)){
+					break;
+				}
+			}
 		}
+		header('Content-Type:'.(isset($m[1])&&$m[1]?$m[1]:CONTENT_TYPE.'; charset='.CHARSET));
+		header('X-Powered-By:LMLPHP');
 		echo ob_get_clean();
 	}
 }
