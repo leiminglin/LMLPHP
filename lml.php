@@ -514,13 +514,13 @@ class LmlErrHandle{
 		switch ($errno) {
 			case E_ERROR:
 			case E_USER_ERROR:
-				$errorStr .= Lmlphp::appName.' Error:['.$errno.']'.$errstr.' '.$errfile.' line '.$errline;
+				$errorStr .= Lmlphp::appName.' Error:['.$errno.']'.$errstr.' in '.$errfile.' line '.$errline;
 				break;
 			case E_STRICT:
 			case E_USER_WARNING:
 			case E_USER_NOTICE:
 			default:
-				$errorStr .= Lmlphp::appName.' Notice:['.$errno.']'.$errstr.' '.$errfile.' line '.$errline;
+				$errorStr .= Lmlphp::appName.' Notice:['.$errno.']'.$errstr.' in '.$errfile.' line '.$errline;
 				break;
 		}
 		self::log($errorStr);
@@ -688,13 +688,13 @@ class LmlApp{
 			if( function_exists($cb[0]) ){
 				call_user_func($cb[0]);
 			}else{
-				throw new LmlException('Function:'.$cb[0].' not exists');
+				throw new LmlException('Function:'.$cb[0].' not found');
 			}
 		}else if( count($cb) == 2 ){
 			if( method_exists($cb[0], $cb[1]) ){
 				call_user_func($cb);
 			}else{
-				throw new LmlException('Class:'.$cb[0].',method:'.$cb[1].' not exists');
+				throw new LmlException('Class:'.$cb[0].',method:'.$cb[1].' not found');
 			}
 		}
 	}
