@@ -559,12 +559,13 @@ class LmlApp{
 	
 	private static $instance;
 	private static $mInstances;
+	private static $realRequestUri;
 	
 	private $pathPattern;
 	private $lastRoute=array();
 	private $path=array('index', 'index');
 	private $callback;
-	private static $realRequestUri;
+	private $onesloc = false;
 
 	private function __construct(){
 		$word_regexp = '([a-zA-Z_][\w]{0,29})';
@@ -699,7 +700,8 @@ class LmlApp{
 		}
 	}
 
-	public function run(){
+	public function run($onesloc=false){
+		$this->onesloc = $onesloc;
 		ob_start();
 		ob_implicit_flush(0);
 		$cb = $this->callback;
@@ -776,7 +778,12 @@ class LmlApp{
 			header('Content-Type:'.(isset($m[1])&&$m[1]?$m[1]:CONTENT_TYPE.'; charset='.CHARSET));
 			header('X-Powered-By:LMLPHP');
 		}
-		echo ob_get_clean();
+		$o = ob_get_clean();
+		$p = strpos(substr($o, 0, 200), "<html>");
+		if(!($p===false)){
+			$o = substr($o, 0, $p).'<!--Powered By LMLPHP-->'.substr($o, $p);
+		}
+		echo $this->onesloc?str_replace(array("\t", "\r", "\n"), '', $o):$o;
 	}
 }
 
