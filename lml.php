@@ -714,10 +714,10 @@ class LmlApp{
 		$a = $path[1];
 		defined('C_MODULE') || define('C_MODULE', strtolower($path[0]));
 		defined('C_ACTION') || define('C_ACTION', strtolower($a));
+		$v = DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
 		if( class_exists($m) ){
 			$class = new ReflectionClass($m);
 		}else{
-			$v = DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
 			if( file_exists( $v ) ){
 				include $v;
 			}else if( $this->lastRoute ){
@@ -758,9 +758,12 @@ class LmlApp{
 				throw new ReflectionException();
 			}
 		}catch (Exception $e){
-			$method = new ReflectionMethod($o,'__call');
-			$method->invokeArgs($o, array($a,''));
-			exit;
+			if(file_exists($v)){
+				include $v;
+			}else{
+				$method = new ReflectionMethod($o,'__call');
+				$method->invokeArgs($o, array($a,''));
+			}
 		}
 		return $this->show();
 	}
@@ -779,9 +782,11 @@ class LmlApp{
 			header('X-Powered-By:LMLPHP');
 		}
 		$o = ob_get_clean();
-		$p = strpos(substr($o, 0, 200), "<html>");
-		if(!($p===false)){
-			$o = substr($o, 0, $p).'<!--Powered By LMLPHP-->'.substr($o, $p);
+		if(!IS_CLI){
+			$p = strpos(substr($o, 0, 200), "<html>");
+			if(!($p===false)){
+				$o = substr($o, 0, $p).'<!--Powered By LMLPHP-->'.substr($o, $p);
+			}
 		}
 		echo $this->onesloc?str_replace(array("\t", "\r", "\n"), '', $o):$o;
 	}
