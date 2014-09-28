@@ -134,6 +134,12 @@ class Lmlphp {
 		define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
 		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
 		define('WEB_PATH', preg_replace('/[^\/]+\.php$/', '', $_SERVER['SCRIPT_NAME']));
+		if( defined('IS_REWRITE_ON') && !IS_REWRITE_ON ){
+			preg_match('/([^\/]+\.php)$/', $_SERVER['SCRIPT_NAME'], $matches );
+			define('WEB_APP_PATH', WEB_PATH.$matches[1].'/');
+		}else{
+			define('WEB_APP_PATH', WEB_PATH);
+		}
 		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
 		date_default_timezone_set(TIMEZONE);
 		error_reporting(0);
