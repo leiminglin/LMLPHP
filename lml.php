@@ -516,7 +516,9 @@ class LmlUtils{
 class LmlErrHandle{
 
 	public static function onErr($errno, $errstr, $errfile, $errline){
-		$errorStr = IS_CLI?'':$_SERVER['REQUEST_URI'].', ';
+		$errorStr = IS_CLI
+			?(isset($_SERVER['argv'][1])?$_SERVER['argv'][1].', ':'')
+			:$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].', ';
 		switch ($errno) {
 			case E_ERROR:
 			case E_USER_ERROR:
@@ -533,7 +535,8 @@ class LmlErrHandle{
 	}
 	
 	public static function onException($e){
-		self::log((IS_CLI?'':$_SERVER['REQUEST_URI'].', ').$e->__toString());
+		self::log((IS_CLI?(isset($_SERVER['argv'][1])?$_SERVER['argv'][1].', ':'')
+				:$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].', ').$e->__toString());
 	}
 	
 	public static function onFatalErr() {
@@ -544,7 +547,8 @@ class LmlErrHandle{
 				case E_CORE_ERROR:
 				case E_COMPILE_ERROR:
 				case E_USER_ERROR:
-					$e['REQUEST_URI'] = IS_CLI?'':$_SERVER['REQUEST_URI'];
+					$e['REQUEST_URI'] = IS_CLI?(isset($_SERVER['argv'][1])?$_SERVER['argv'][1].', ':'')
+					:$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 					$errstr = $e['REQUEST_URI'].', '.Lmlphp::appName.' Fatal Error:'.$e['message'].' in '.$e['file'].' line '.$e['line'];
 					self::log($errstr);
 					break;
