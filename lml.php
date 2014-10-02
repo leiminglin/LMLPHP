@@ -767,7 +767,7 @@ class LmlApp{
 			}else{
 				throw new ReflectionException();
 			}
-		}catch (Exception $e){
+		}catch (ReflectionException $e){
 			if(file_exists($v)){
 				include $v;
 			}else{
