@@ -634,7 +634,7 @@ class LmlApp{
 				file_put_contents(MODULE_PATH.'ModuleIndex.php', "<?php\r\nclass ModuleIndex extends LmlBase{\r\n\tpublic function index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;Welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
 			}
 			if( !file_exists(MODULE_PATH.'LmlBase.php') ){
-				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\nabstract class LmlBase{\n\tpublic \$v = array();\n\tpublic function __call(\$name, \$arg){\n\t\t// TODO handle some unknow method\n\t}\n\tpublic function assign(\$k, \$v){\n\t\t\$this->v[\$k] = \$v;\n\t}\n\tpublic function display(\$t=''){\n\t\textract(\$this->v, EXTR_OVERWRITE);\n\t\t\$s = DIRECTORY_SEPARATOR;\n\t\t\$d = DEFAULT_THEME_PATH;\n\t\tif(\$t){\n\t\t\t\$arr = explode('/', \$t);\n\t\t\tif(count(\$arr) == 1){\n\t\t\t\tarray_unshift(\$arr, C_MODULE);\n\t\t\t}\n\t\t\tinclude \$d.\$arr[0].\$s.\$arr[1].'.php';\n\t\t}else{\n\t\t\tinclude \$d.C_MODULE.\$s.C_ACTION.'.php';\n\t\t}\n\t}\n}");
+				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\r\nabstract class LmlBase{\r\n\tpublic \$v = array();\r\n\tpublic function __call(\$name, \$arg){\r\n\t\t// TODO handle some unknow method\r\n\t}\r\n\tpublic function assign(\$k, \$v){\r\n\t\t\$this->v[\$k] = \$v;\r\n\t}\r\n\tpublic function display(\$t=''){\r\n\t\t\$s = DIRECTORY_SEPARATOR;\r\n\t\t\$d = DEFAULT_THEME_PATH;\r\n\t\tif(\$t){\r\n\t\t\t\$arr = explode('/', \$t);\r\n\t\t\tif(count(\$arr) == 1){\r\n\t\t\t\tarray_unshift(\$arr, C_MODULE);\r\n\t\t\t}\r\n\t\t\t\$this->fetch(\$d.\$arr[0].\$s.\$arr[1].'.php');\r\n\t\t}else{\r\n\t\t\t\$this->fetch(\$d.C_MODULE.\$s.C_ACTION.'.php');\r\n\t\t}\r\n\t}\r\n\tprivate function fetch(\$f){\r\n\t\textract(\$this->v, EXTR_OVERWRITE);\r\n\t\tinclude \$f;\r\n\t}\r\n\tpublic function __construct(){\r\n\t\t\r\n\t}\r\n}");
 			}
 			if( !is_dir(DEFAULT_THEME_PATH.'index') ){
 				LmlUtils::mkdirDeep(DEFAULT_THEME_PATH.'index');
@@ -776,6 +776,10 @@ class LmlApp{
 			}
 		}
 		return $this->show();
+	}
+	
+	public function setOneSloc($v){
+		$this->onesloc = $v;
 	}
 	
 	private function show(){
