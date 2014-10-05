@@ -569,7 +569,6 @@ class LmlApp{
 	
 	private static $instance;
 	private static $mInstances;
-	private static $realRequestUri;
 	
 	private $pathPattern;
 	private $lastRoute=array();
@@ -586,7 +585,7 @@ class LmlApp{
 		}else if( isset( $_SERVER['PATH_INFO'] ) ){
 			$this->matchPath($_SERVER['PATH_INFO']);
 		}else if( isset( $_SERVER['REQUEST_URI'] ) && 
-			!$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/', '', self::$realRequestUri)) ){
+			!$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/', '', LML_REQUEST_URI)) ){
 			if( isset($_GET[PATH_PARAM]) ){
 				$this->matchPath( $_GET[PATH_PARAM] );
 			}elseif( isset($_GET['m']) ){
@@ -624,10 +623,11 @@ class LmlApp{
 			$script_dir_pattern = str_replace(array('.', '/'), array('\\.', '\/'), $script_dir);
 			$path_matches = '';
 			preg_match('/^'.$script_dir_pattern.'(.*)$/i', $request_uri, $path_matches);
-			self::$realRequestUri = isset($path_matches[1])?$path_matches[1]:'';
+			$realRequestUri = isset($path_matches[1])?$path_matches[1]:'';
 		}else{
-			self::$realRequestUri = $request_uri;
+			$realRequestUri = $request_uri;
 		}
+		define('LML_REQUEST_URI', $realRequestUri);
 		if( !is_dir(MODULE_PATH) ){
 			LmlUtils::mkdirDeep(MODULE_PATH);
 			if( !file_exists(MODULE_PATH.'ModuleIndex.php') ){
@@ -663,7 +663,7 @@ class LmlApp{
 		if( IS_CLI ){
 			$path = isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:'';
 		}else{
-			$path = self::$realRequestUri;
+			$path = LML_REQUEST_URI;
 		}
 		foreach ($r as $k=>$v){
 			$matches = '';
