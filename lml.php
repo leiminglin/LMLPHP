@@ -656,8 +656,8 @@ class LmlApp{
 	}
 	
 	public function addRouter($r){
-		if( !is_array($r) ){
-			return;
+		if( !is_array($r) || empty($r) ){
+			return $this;
 		}
 		$path = '';
 		if( IS_CLI ){
