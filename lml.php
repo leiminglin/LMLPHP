@@ -479,10 +479,20 @@ class LmlUtils{
 	}
 	
 	public static function autoload($arg){
-		if( preg_match('/^Module|^Lml/', $arg) && file_exists(MODULE_PATH.$arg.'.php') ){
+		if( substr($arg,0,3)=='Lml' && file_exists(MODULE_PATH.$arg.'.php') ){
 			require MODULE_PATH.$arg.'.php';
-		}elseif ( preg_match('/^Model/', $arg) && file_exists(MODEL_PATH.$arg.'.php') ){
-			require MODEL_PATH.$arg.'.php';
+		}elseif( substr($arg,0,6)=='Module' ){
+			if( defined('C_GROUP') && file_exists(MODULE_PATH.C_GROUP.'/'.$arg.'.php') ){
+				require MODULE_PATH.C_GROUP.'/'.$arg.'.php';
+			}elseif( file_exists(MODULE_PATH.$arg.'.php') ){
+				require MODULE_PATH.$arg.'.php';
+			}
+		}elseif( substr($arg,0,5)=='Model' ){
+			if( defined('C_GROUP') && file_exists(MODEL_PATH.C_GROUP.'/'.$arg.'.php') ){
+				require MODEL_PATH.C_GROUP.'/'.$arg.'.php';
+			}elseif( file_exists(MODEL_PATH.$arg.'.php') ){
+				require MODEL_PATH.$arg.'.php';
+			}
 		}elseif( file_exists(LIB_PATH.$arg.'.php') ){
 			require LIB_PATH.$arg.'.php';
 		}
@@ -569,23 +579,25 @@ class LmlApp{
 	
 	private static $instance;
 	private static $mInstances;
+	private static $realRequestUri;
 	
 	private $pathPattern;
 	private $lastRoute=array();
 	private $path=array('index', 'index');
 	private $callback;
 	private $onesloc = false;
+	private $grouter = false;
 
 	private function __construct(){
 		$word_regexp = '([a-zA-Z_][\w]{0,29})';
 		$this->pathPattern = '/^\/'.$word_regexp.'\/'.$word_regexp.'|^\/'.$word_regexp.'/';
+		$this->setPath();
+	}
+	
+	private function setPath(){
 		if( IS_CLI ){
-			$path_str = isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:'';
-			$this->matchPath($path_str);
-		}else if( isset( $_SERVER['PATH_INFO'] ) ){
-			$this->matchPath($_SERVER['PATH_INFO']);
-		}else if( isset( $_SERVER['REQUEST_URI'] ) && 
-			!$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/', '', LML_REQUEST_URI)) ){
+			$this->matchPath(self::$realRequestUri);
+		}else if( isset( $_SERVER['REQUEST_URI'] ) && !$this->matchPath(preg_replace('/^\/[^\/\\\\]+\.php/','',self::$realRequestUri)) ){
 			if( isset($_GET[PATH_PARAM]) ){
 				$this->matchPath( $_GET[PATH_PARAM] );
 			}elseif( isset($_GET['m']) ){
@@ -607,6 +619,8 @@ class LmlApp{
 				$this->path = array($matches[3], 'index');
 			}
 			return true;
+		}else{
+			$this->path = array('index', 'index');
 		}
 		return false;
 	}
@@ -615,18 +629,23 @@ class LmlApp{
 		if( self::$instance ){
 			return self::$instance;
 		}
-		$script_name = $_SERVER['SCRIPT_NAME'];
-		$request_uri = $_SERVER['REQUEST_URI'];
-		if( basename($script_name) != trim($script_name, '/') ){
-			// 项目入口在document root下级文件夹
-			$script_dir = dirname($script_name);
-			$script_dir_pattern = str_replace(array('.', '/'), array('\\.', '\/'), $script_dir);
-			$path_matches = '';
-			preg_match('/^'.$script_dir_pattern.'(.*)$/i', $request_uri, $path_matches);
-			$realRequestUri = isset($path_matches[1])?$path_matches[1]:'';
+		if( IS_CLI ){
+			$realRequestUri = isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:'';
 		}else{
-			$realRequestUri = $request_uri;
+			$script_name = $_SERVER['SCRIPT_NAME'];
+			$request_uri = $_SERVER['REQUEST_URI'];
+			if( basename($script_name) != trim($script_name, '/') ){
+				// 项目入口在document root下级文件夹
+				$script_dir = dirname($script_name);
+				$script_dir_pattern = str_replace(array('.', '/'), array('\\.', '\/'), $script_dir);
+				$path_matches = '';
+				preg_match('/^'.$script_dir_pattern.'(.*)$/i', $request_uri, $path_matches);
+				$realRequestUri = isset($path_matches[1])?$path_matches[1]:'';
+			}else{
+				$realRequestUri = $request_uri;
+			}
 		}
+		self::$realRequestUri = $realRequestUri;
 		define('LML_REQUEST_URI', $realRequestUri);
 		if( !is_dir(MODULE_PATH) ){
 			LmlUtils::mkdirDeep(MODULE_PATH);
@@ -634,7 +653,7 @@ class LmlApp{
 				file_put_contents(MODULE_PATH.'ModuleIndex.php', "<?php\r\nclass ModuleIndex extends LmlBase{\r\n\tpublic function index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;Welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
 			}
 			if( !file_exists(MODULE_PATH.'LmlBase.php') ){
-				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\r\nabstract class LmlBase{\r\n\tpublic \$v = array();\r\n\tpublic function __call(\$name, \$arg){\r\n\t\t// TODO handle some unknow method\r\n\t}\r\n\tpublic function assign(\$k, \$v){\r\n\t\t\$this->v[\$k] = \$v;\r\n\t}\r\n\tpublic function display(\$t=''){\r\n\t\t\$s = DIRECTORY_SEPARATOR;\r\n\t\t\$d = DEFAULT_THEME_PATH;\r\n\t\tif(\$t){\r\n\t\t\t\$arr = explode('/', \$t);\r\n\t\t\tif(count(\$arr) == 1){\r\n\t\t\t\tarray_unshift(\$arr, C_MODULE);\r\n\t\t\t}\r\n\t\t\t\$this->fetch(\$d.\$arr[0].\$s.\$arr[1].'.php');\r\n\t\t}else{\r\n\t\t\t\$this->fetch(\$d.C_MODULE.\$s.C_ACTION.'.php');\r\n\t\t}\r\n\t}\r\n\tprivate function fetch(\$f){\r\n\t\textract(\$this->v, EXTR_OVERWRITE);\r\n\t\tinclude \$f;\r\n\t}\r\n\tpublic function __construct(){\r\n\t\t\r\n\t}\r\n}");
+				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\r\nabstract class LmlBase{\r\n\tpublic \$v = array();\r\n\tpublic function __call(\$name, \$arg){\r\n\t\t// TODO handle some unknow method\r\n\t}\r\n\tpublic function assign(\$k, \$v){\r\n\t\t\$this->v[\$k] = \$v;\r\n\t}\r\n\tpublic function display(\$t=''){\r\n\t\t\$s = DIRECTORY_SEPARATOR;\r\n\t\t\$d = DEFAULT_THEME_PATH;\r\n\t\tif( defined('C_GROUP') ){\r\n\t\t\t\$d .= C_GROUP.\$s;\r\n\t\t}\r\n\t\tif(\$t){\r\n\t\t\t\$arr = explode('/', \$t);\r\n\t\t\tif(count(\$arr) == 1){\r\n\t\t\t\tarray_unshift(\$arr, C_MODULE);\r\n\t\t\t}\r\n\t\t\t\$this->fetch(\$d.\$arr[0].\$s.\$arr[1].'.php');\r\n\t\t}else{\r\n\t\t\t\$this->fetch(\$d.C_MODULE.\$s.C_ACTION.'.php');\r\n\t\t}\r\n\t}\r\n\tprivate function fetch(\$f){\r\n\t\textract(\$this->v, EXTR_OVERWRITE);\r\n\t\tinclude \$f;\r\n\t}\r\n\tpublic function __construct(){\r\n\t\t\r\n\t}\r\n}");
 			}
 			if( !is_dir(DEFAULT_THEME_PATH.'index') ){
 				LmlUtils::mkdirDeep(DEFAULT_THEME_PATH.'index');
@@ -655,15 +674,60 @@ class LmlApp{
 		return self::$instance = new self;
 	}
 	
+	public function addGroup($group){
+		if( !is_array($group) ){
+			return $this;
+		}
+		foreach ($group as $k=>$v){
+			if( is_string($v) ){
+				$k = $v;
+			}
+			$o = false;
+			$kp = str_replace(array('.', '/'), array('\\.', '\/'), $k);
+			if( isset($_GET['g']) && $_GET['g']==$k ){
+				$o = true;
+			}elseif( isset($_GET[PATH_PARAM]) ){
+				if( preg_match('/^\/'.$kp.'/', $_GET[PATH_PARAM]) ){
+					$_GET[PATH_PARAM] = preg_replace('/^\/'.$kp.'/', '/', $_GET[PATH_PARAM]);
+					$o = true;
+				}
+			}else{
+				$p = '/^(?:\/[^\/]+\.php)*\/'.$kp.'\/?/';
+				if( preg_match($p, self::$realRequestUri) ){
+					self::$realRequestUri = preg_replace($p, '/', self::$realRequestUri);
+					$o = true;
+				}
+			}
+			if($o){
+				define('C_GROUP', str_replace(array('\\', '/'), DIRECTORY_SEPARATOR, $k));
+				$this->setPath();
+				if( is_array($v) ){
+					$this->addRouter($v);
+					$this->grouter = true;
+				}elseif($v===false || is_string($v)){
+					$this->grouter = true;
+				}elseif($v === true){
+					// extend the main router
+					$this->grouter = false;
+				}
+				return $this;
+			}
+		}
+		return $this;
+	}
+	
 	public function addRouter($r){
 		if( !is_array($r) || empty($r) ){
+			return $this;
+		}
+		if( $this->grouter ){
 			return $this;
 		}
 		$path = '';
 		if( IS_CLI ){
 			$path = isset($_SERVER['argv'][1])?$_SERVER['argv'][1]:'';
 		}else{
-			$path = LML_REQUEST_URI;
+			$path = self::$realRequestUri;
 		}
 		foreach ($r as $k=>$v){
 			$matches = '';
@@ -724,7 +788,7 @@ class LmlApp{
 		$a = $path[1];
 		defined('C_MODULE') || define('C_MODULE', strtolower($path[0]));
 		defined('C_ACTION') || define('C_ACTION', strtolower($a));
-		$v = DEFAULT_THEME_PATH.C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
+		$v = DEFAULT_THEME_PATH.(defined('C_GROUP')?C_GROUP.DIRECTORY_SEPARATOR:'').C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
 		if( class_exists($m) ){
 			$class = new ReflectionClass($m);
 		}else{
