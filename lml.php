@@ -674,8 +674,31 @@ class LmlApp{
 		return self::$instance = new self;
 	}
 	
+	public function addDomain($domain){
+		if(!is_array($domain)){
+			return $this;
+		}
+		foreach ($domain as $k=>$v){
+			if( $k==$_SERVER['HTTP_HOST'] ){
+				if( is_string($v) ){
+					$g = $v;
+				}else{
+					if( is_string($v[0]) ){
+						$g = $v[0];
+					}else{
+						$g = key($v);
+					}
+				}
+				$p = '/^(\/[^\/]+\.php)?\//';
+				self::$realRequestUri = preg_replace($p, '$1/'.$g.'/', self::$realRequestUri);
+				return $this->addGroup(is_array($v)?$v:array($v));
+			}
+		}
+		return $this;
+	}
+	
 	public function addGroup($group){
-		if( !is_array($group) ){
+		if( !is_array($group) || defined('C_GROUP') ){
 			return $this;
 		}
 		foreach ($group as $k=>$v){
