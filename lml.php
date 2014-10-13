@@ -481,15 +481,19 @@ class LmlUtils{
 	public static function autoload($arg){
 		if( substr($arg,0,3)=='Lml' && file_exists(MODULE_PATH.$arg.'.php') ){
 			require MODULE_PATH.$arg.'.php';
-		}elseif( substr($arg,0,6)=='Module' ){
-			if( defined('C_GROUP') && file_exists(MODULE_PATH.C_GROUP.'/'.$arg.'.php') ){
-				require MODULE_PATH.C_GROUP.'/'.$arg.'.php';
+		}elseif( substr($arg,0,strlen(MODULE_DIR_NAME))==MODULE_DIR_NAME ){
+			if( defined('C_GROUP') ){
+				if( file_exists(MODULE_PATH.C_GROUP.'/'.$arg.'.php') ){
+					require MODULE_PATH.C_GROUP.'/'.$arg.'.php';
+				}
 			}elseif( file_exists(MODULE_PATH.$arg.'.php') ){
 				require MODULE_PATH.$arg.'.php';
 			}
-		}elseif( substr($arg,0,5)=='Model' ){
-			if( defined('C_GROUP') && file_exists(MODEL_PATH.C_GROUP.'/'.$arg.'.php') ){
-				require MODEL_PATH.C_GROUP.'/'.$arg.'.php';
+		}elseif( substr($arg,0,strlen(MODEL_DIR_NAME))==MODEL_DIR_NAME ){
+			if( defined('C_GROUP') ){
+				if( file_exists(MODEL_PATH.C_GROUP.'/'.$arg.'.php') ){
+					require MODEL_PATH.C_GROUP.'/'.$arg.'.php';
+				}
 			}elseif( file_exists(MODEL_PATH.$arg.'.php') ){
 				require MODEL_PATH.$arg.'.php';
 			}
@@ -649,8 +653,8 @@ class LmlApp{
 		define('LML_REQUEST_URI', $realRequestUri);
 		if( !is_dir(MODULE_PATH) ){
 			LmlUtils::mkdirDeep(MODULE_PATH);
-			if( !file_exists(MODULE_PATH.'ModuleIndex.php') ){
-				file_put_contents(MODULE_PATH.'ModuleIndex.php', "<?php\r\nclass ModuleIndex extends LmlBase{\r\n\tpublic function index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;Welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
+			if( !file_exists(MODULE_PATH.ucfirst(MODULE_DIR_NAME).'Index.php') ){
+				file_put_contents(MODULE_PATH.ucfirst(MODULE_DIR_NAME).'Index.php', "<?php\r\nclass ".ucfirst(MODULE_DIR_NAME)."Index extends LmlBase{\r\n\tpublic function index(){\r\n\t\tif( !headers_sent() ) {\r\n\t\t\theader(\"Content-type:text/html;charset=utf-8\");\r\n\t\t}\r\n\t\techo '<div style=\"margin-top:100px;line-height:30px;font-size:16px;font-weight:bold;font-family:微软雅黑;text-align:center;color:red;\">^_^,&nbsp;Welcome to use LMLPHP!<div style=\"color:#333;\">A fully object-oriented PHP framework, keep it light, magnificent, lovely.</div></div>';\r\n\t}\r\n}");
 			}
 			if( !file_exists(MODULE_PATH.'LmlBase.php') ){
 				file_put_contents(MODULE_PATH.'LmlBase.php', "<?php\r\nabstract class LmlBase{\r\n\tpublic \$v = array();\r\n\tpublic function __call(\$name, \$arg){\r\n\t\t// TODO handle some unknow method\r\n\t}\r\n\tpublic function assign(\$k, \$v){\r\n\t\t\$this->v[\$k] = \$v;\r\n\t}\r\n\tpublic function display(\$t=''){\r\n\t\t\$s = DIRECTORY_SEPARATOR;\r\n\t\t\$d = DEFAULT_THEME_PATH;\r\n\t\tif( defined('C_GROUP') ){\r\n\t\t\t\$d .= C_GROUP.\$s;\r\n\t\t}\r\n\t\tif(\$t){\r\n\t\t\t\$arr = explode('/', \$t);\r\n\t\t\tif(count(\$arr) == 1){\r\n\t\t\t\tarray_unshift(\$arr, C_MODULE);\r\n\t\t\t}\r\n\t\t\t\$this->fetch(\$d.\$arr[0].\$s.\$arr[1].'.php');\r\n\t\t}else{\r\n\t\t\t\$this->fetch(\$d.C_MODULE.\$s.C_ACTION.'.php');\r\n\t\t}\r\n\t}\r\n\tprivate function fetch(\$f){\r\n\t\textract(\$this->v, EXTR_OVERWRITE);\r\n\t\tinclude \$f;\r\n\t}\r\n\tpublic function __construct(){\r\n\t\t\r\n\t}\r\n}");
@@ -715,7 +719,7 @@ class LmlApp{
 					$o = true;
 				}
 			}else{
-				$p = '/^(?:\/[^\/]+\.php)*\/'.$kp.'\/?/';
+				$p = '/^(?:\/[^\/]+\.php)?\/'.$kp.'\/?/';
 				if( preg_match($p, self::$realRequestUri) ){
 					self::$realRequestUri = preg_replace($p, '/', self::$realRequestUri);
 					$o = true;
@@ -807,7 +811,7 @@ class LmlApp{
 			return $this->show();
 		}
 		$path = $this->path;
-		$m = 'Module'.ucfirst($path[0]);
+		$m = ucfirst(MODULE_DIR_NAME).ucfirst($path[0]);
 		$a = $path[1];
 		defined('C_MODULE') || define('C_MODULE', strtolower($path[0]));
 		defined('C_ACTION') || define('C_ACTION', strtolower($a));
