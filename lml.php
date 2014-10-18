@@ -480,25 +480,17 @@ class LmlUtils{
 	
 	public static function autoload($arg){
 		$f = $arg.'.php';
+		$group = defined('C_GROUP')?C_GROUP:false;
 		$base = (substr($arg,0,3)=='Lml')?true:false;
 		if( $base || substr($arg,0,strlen(MODULE_DIR_NAME))==ucfirst(MODULE_DIR_NAME) ){
-			if( defined('C_GROUP') ){
-				$group = MODULE_PATH.C_GROUP.'/'.$f;
-				if( $base && !file_exists($group) ){
-					if( file_exists(MODULE_PATH.$f) ){
-						require MODULE_PATH.$f;
-					}
-				}elseif( file_exists($group) ){
-					require $group;
-				}
+			if( $group && file_exists(MODULE_PATH.C_GROUP.'/'.$f) ){
+				require MODULE_PATH.C_GROUP.'/'.$f;
 			}elseif( file_exists(MODULE_PATH.$f) ){
 				require MODULE_PATH.$f;
 			}
 		}elseif( substr($arg,0,strlen(MODEL_DIR_NAME))==ucfirst(MODEL_DIR_NAME) ){
-			if( defined('C_GROUP') ){
-				if( file_exists(MODEL_PATH.C_GROUP.'/'.$f) ){
-					require MODEL_PATH.C_GROUP.'/'.$f;
-				}
+			if( $group && file_exists(MODEL_PATH.$group.'/'.$f) ){
+				require MODEL_PATH.$group.'/'.$f;
 			}elseif( file_exists(MODEL_PATH.$f) ){
 				require MODEL_PATH.$f;
 			}
