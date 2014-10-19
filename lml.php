@@ -684,7 +684,7 @@ class LmlApp{
 				if( is_string($v) ){
 					$g = $v;
 				}else{
-					if( is_string($v[0]) ){
+					if( isset($v[0]) && is_string($v[0]) ){
 						$g = $v[0];
 					}else{
 						$g = key($v);
