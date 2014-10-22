@@ -565,6 +565,9 @@ class LmlErrHandle{
 					break;
 			}
 		}
+		if( !IS_CLI && session_id() != '' ){
+			session_write_close();
+		}
 	}
 	
 	private static function log($content, $filename='', $in_charset='', $out_charset=''){
