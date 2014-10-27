@@ -430,7 +430,7 @@ class Lmlphp {
 		foreach ( $list as $file ) {
 			$file_location = $dir . DIRECTORY_SEPARATOR . $file;
 			if (is_dir ( $file_location ) && $file != "." && $file != "..") {
-				$retlist[$file_location] = $this->showDirFile( $file_location, $flag );
+				$this->showDirFile( $file_location, $flag )->getResval($retlist[$file_location]);
 			} else {
 				if( $flag ){
 					$retlist[] = $file_location;
