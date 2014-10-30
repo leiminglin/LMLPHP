@@ -891,7 +891,7 @@ class LmlApp{
 			$p = strpos(substr($o, 0, 200), "<html>");
 			if(!($p===false)){
 				$o = substr($o, 0, $p).'<!--Powered By LMLPHP-->'.substr($o, $p);
-				preg_match_all('/<pre>[\s\S]*?<\/pre>/i', $o, $matches, PREG_OFFSET_CAPTURE);
+				preg_match_all('/<pre[^>]*?>[\s\S]*?<\/pre>/i', $o, $matches, PREG_OFFSET_CAPTURE);
 				if( isset($matches[0][0][1]) ){
 					$pos = 0;
 					foreach( $matches[0] as $v ){
