@@ -1,14 +1,14 @@
 <?php
 /**
-* LMLPHP Framework
-* Copyright (c) 2014 http://lmlphp.com All rights reserved.
-* Licensed ( http://mit-license.org/ )
-* Author: leiminglin <leiminglin@126.com>
-*
-* A fully object-oriented PHP framework.
-* Keep it light, magnificent, lovely.
-*
-*/
+ * LMLPHP Framework
+ * Copyright (c) 2014 http://lmlphp.com All rights reserved.
+ * Licensed ( http://mit-license.org/ )
+ * Author: leiminglin <leiminglin@126.com>
+ *
+ * A fully object-oriented PHP framework.
+ * Keep it light, magnificent, lovely.
+ *
+ */
 
 class Mysql{
 	

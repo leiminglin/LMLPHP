@@ -1,5 +1,13 @@
 <?php 
 /**
+ * LMLPHP Framework
+ * Copyright (c) 2014 http://lmlphp.com All rights reserved.
+ * Licensed ( http://mit-license.org/ )
+ * Author: leiminglin <leiminglin@126.com>
+ *
+ * A fully object-oriented PHP framework.
+ * Keep it light, magnificent, lovely.
+ *
  * $page, the object of Paging
  * $pid, the current page id
  * 
