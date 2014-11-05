@@ -842,15 +842,29 @@ class LmlApp{
 		try{
 			$method = new ReflectionMethod($o, $a);
 			if($method->isPublic()) {
+				if( $class->hasProperty('conditions') 
+					/* 
+					 * since php 5.3
+					 * && $class->getProperty('conditions')->setAccessible(true) 
+					 */
+					&& ($conditions = $class->getProperty('conditions')->getValue($o)) 
+					&& is_array($conditions) ){
+					if( isset($conditions[$a]) && $class->hasMethod($conditions[$a]) ){
+						$confunc = $class->getMethod( $conditions[$a] );
+						if( !$confunc->invoke($o) ) {
+							return $this->show();
+						}
+					}
+				}
 				if($class->hasMethod('_front_'.$a)) {
-					$before =   $class->getMethod('_front_'.$a);
+					$before = $class->getMethod('_front_'.$a);
 					if($before->isPublic()) {
 						$before->invoke($o);
 					}
 				}
 				$method->invoke($o);
 				if($class->hasMethod('_rear_'.$a)) {
-					$after =   $class->getMethod('_rear_'.$a);
+					$after = $class->getMethod('_rear_'.$a);
 					if($after->isPublic()) {
 						$after->invoke($o);
 					}
