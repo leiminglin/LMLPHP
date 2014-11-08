@@ -10,7 +10,7 @@
  *
  * $page, the object of Paging
  * $pid, the current page id
- * 
+ * $page_path, the page path
  * 
  */
 if( isset($page) && ($count = $page->getPageCount()) > 1){
