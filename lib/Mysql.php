@@ -90,6 +90,18 @@ class Mysql{
 		return $this->query($sql);
 	}
 	
+	public function update($table, $arr, $where=''){
+		$sql = 'UPDATE '.$table.' SET ';
+		foreach ($arr as $k=>$v){
+			$sql .= '`'.$k.'` = \''.$this->escapeString($v).'\',';
+		}
+		$sql = rtrim($sql, ',');
+		if($where){
+			$sql .= ' WHERE '.$where;
+		}
+		return $this->query($sql);
+	}
+	
 	public function getOne($str){
 		$rs = $this->query($str);
 		return isset($rs[0])?$rs[0]:'';
