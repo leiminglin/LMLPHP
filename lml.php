@@ -591,6 +591,7 @@ class LmlApp{
 	private $callback;
 	private $onesloc = false;
 	private $grouter = false;
+	private $event = array();
 
 	private function __construct(){
 		$word_regexp = '([a-zA-Z_][\w]{0,29})';
@@ -800,8 +801,16 @@ class LmlApp{
 			}
 		}
 	}
+	
+	public function attachEvent( $e ){
+		$this->event = array_merge((array)$this->event, (array)$e);
+		return $this;
+	}
 
 	public function run($onesloc=false){
+		if( isset($this->event['onRun']) ){
+			$this->callUserFunc( $this->event['onRun'] );
+		}
 		$this->onesloc = $onesloc;
 		ob_start();
 		ob_implicit_flush(0);
