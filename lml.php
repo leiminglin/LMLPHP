@@ -126,13 +126,13 @@ class Lmlphp {
 		defined('LIB_DIR_NAME') || define('LIB_DIR_NAME', 'lib');
 		defined('LOG_DIR_NAME') || define('LOG_DIR_NAME', 'log');
 		defined('THEMES_DIR_NAME') || define('THEMES_DIR_NAME', 'themes');
-		defined('DEFAULT_THEMES_NAME') || define('DEFAULT_THEMES_NAME', 'default');
+		defined('DEFAULT_THEME_NAME') || define('DEFAULT_THEME_NAME', 'default');
 		define('MODULE_PATH', APP_PATH.MODULE_DIR_NAME.$p);
 		define('MODEL_PATH', APP_PATH.MODEL_DIR_NAME.$p);
 		define('LIB_PATH', APP_PATH.LIB_DIR_NAME.$p);
 		define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
 		define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
-		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEMES_NAME.$p);
+		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEME_NAME.$p);
 		define('WEB_PATH', preg_replace('/[^\/]+\.php$/', '', $_SERVER['SCRIPT_NAME']));
 		if( defined('IS_REWRITE_ON') && !IS_REWRITE_ON ){
 			preg_match('/([^\/]+\.php)$/', $_SERVER['SCRIPT_NAME'], $matches );
