@@ -501,7 +501,7 @@ class LmlUtils{
 	
 	public static function logPre($filename, &$content, $in_charset, $out_charset){
 		if (!file_exists($filename)){
-			$dirpath = substr($filename, 0, strrpos($filename, DIRECTORY_SEPARATOR));
+			$dirpath = substr($filename, 0, max(strrpos($filename, '\\'), strrpos($filename, '/')) );
 			$dirpath && !file_exists($dirpath) && LmlUtils::mkdirDeep($dirpath);
 		}
 		if( file_exists($filename) && filesize($filename) > 2097152 ){
