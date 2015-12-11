@@ -60,6 +60,9 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 
 		if($params){
 			foreach ($params as $k => $v){
+				if(is_int($k)){
+					$k++;
+				}
 				if(is_array($v)){
 					$value = $v['value'];
 					$type = isset($v['type']) ? $v['type'] : false;
