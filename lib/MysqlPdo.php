@@ -36,7 +36,7 @@ class MysqlPdo
         if(isset(self::$instances[$flag])){
             return self::$instances[$flag];
         }
-        return $instances[$flag] = new self();
+        return self::$instances[$flag] = new self();
     }
 
     public function select($sql){
