@@ -35,7 +35,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 	private $db;
 
 	private function __construct() {
-		$dsn = 'mysql:host='.self::$config['hostname'].';dbname='.self::$config['database'];
+		$dsn = 'mysql:host='.self::$config['hostname'].';port='.self::$config['hostport'].';dbname='.self::$config['database'];
 		$username = self::$config['username'];
 		$password = self::$config['password'];
 		$options = array(
