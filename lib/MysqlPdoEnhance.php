@@ -31,7 +31,7 @@ interface MysqlPdoInterface{
 class MysqlPdoEnhance implements MysqlPdoInterface
 {
 	private static $config;
-	private static $instance;
+	private static $instances;
 	private $db;
 
 	private function __construct() {
@@ -49,10 +49,11 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 
 	public static function getInstance($config){
 		self::$config = $config;
-		if(self::$instance && self::$instance instanceof self){
-			return self::$instance;
+		$flag = $config['hostname'] . $config['database'];
+		if (isset(self::$instances[$flag]) && self::$instances[$flag] instanceof self){
+			return self::$instances[$flag];
 		}
-		return new self();
+		return self::$instances[$flag] = new self();
 	}
 
 	public function query($sql, $params = array()){

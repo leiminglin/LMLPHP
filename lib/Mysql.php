@@ -11,10 +11,10 @@
  */
 
 class Mysql{
-	
+
 	private $link;
 	private $resource;
-	public static $instance;
+	private static $instances;
 
 	private function __construct($config){
 		if ( !extension_loaded('mysql') ) {
@@ -22,12 +22,13 @@ class Mysql{
 		}
 		$this->connect($config);
 	}
-	
+
 	public static function getInstance($config){
-		if(self::$instance){
-			return self::$instance;
+		$flag = $config['hostname'] . $config['database'];
+		if (isset(self::$instances[$flag])) {
+			return self::$instances[$flag];
 		}
-		return new self($config);
+		return self::$instances[$flag] = new self($config);
 	}
 
 	public function connect($config='') {
@@ -35,15 +36,15 @@ class Mysql{
 			$host = $config['hostname'].($config['hostport']?":{$config['hostport']}":'');
 			$pconnect = isset($config['persist'])?$config['persist']:0;
 			if($pconnect){
-				$this->link = mysql_pconnect($host, $config['username'], $config['password'], 
+				$this->link = mysql_pconnect($host, $config['username'], $config['password'],
 					MYSQL_CLIENT_COMPRESS*MYSQL_CLIENT_IGNORE_SPACE*
 						MYSQL_CLIENT_INTERACTIVE*MYSQL_CLIENT_SSL);
 			}else{
-				$this->link = mysql_connect($host, $config['username'], $config['password'], true, 
+				$this->link = mysql_connect($host, $config['username'], $config['password'], true,
 					MYSQL_CLIENT_COMPRESS*MYSQL_CLIENT_IGNORE_SPACE*
 						MYSQL_CLIENT_INTERACTIVE*MYSQL_CLIENT_SSL);
 			}
-			if ( !$this->link || (!empty($config['database']) && 
+			if ( !$this->link || (!empty($config['database']) &&
 					!mysql_select_db($config['database'], $this->link) ) ) {
 				throw new LmlDbException(mysql_error());
 			}
@@ -78,7 +79,7 @@ class Mysql{
 			return mysql_affected_rows($this->link);
 		}
 	}
-	
+
 	public function insert($table, $arr){
 		$sql = 'INSERT INTO '.$table;
 		foreach ($arr as $k=>$v){
@@ -89,7 +90,7 @@ class Mysql{
 		$sql .= 'VALUES('.implode(',', $vals).')';
 		return $this->query($sql);
 	}
-	
+
 	public function update($table, $arr, $where=''){
 		$sql = 'UPDATE '.$table.' SET ';
 		foreach ($arr as $k=>$v){
@@ -114,11 +115,11 @@ class Mysql{
 		$rs = $this->query($str);
 		return isset($rs[0])?$rs[0]:'';
 	}
-	
+
 	public function getLastId(){
 		return mysql_insert_id($this->link);
 	}
-	
+
 	public function execute($str) {
 		if ( $this->resource ) {
 			$this->free();
@@ -156,7 +157,7 @@ class Mysql{
 
 	private function getAll() {
 		$result = array();
-		while( true==( is_resource($this->resource) && 
+		while( true==( is_resource($this->resource) &&
 				$row=mysql_fetch_assoc($this->resource)) ){
 			$result[] = $row;
 		}
@@ -165,7 +166,7 @@ class Mysql{
 		}
 		return $result;
 	}
-	
+
 	public function escapeString($str) {
 		if($this->link) {
 			return mysql_real_escape_string($str,$this->link);
@@ -180,7 +181,7 @@ class Mysql{
 		}
 		$this->link = null;
 	}
-	
+
 	private function error(){
 		throw new LmlDbException(mysql_error($this->link));
 	}

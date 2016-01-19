@@ -14,7 +14,7 @@
 class MysqlPdo
 {
     private static $config;
-    private static $instance;
+    private static $instances;
     private $db;
 
     private function __construct() {
@@ -32,10 +32,11 @@ class MysqlPdo
 
     public static function getInstance($config){
         self::$config = $config;
-        if(isset(self::$instance)){
-            return self::$instance;
+        $flag = $config['hostname'] . $config['database'];
+        if(isset(self::$instances[$flag])){
+            return self::$instances[$flag];
         }
-        return new self();
+        return self::$instances[$flag] = new self();
     }
 
     public function select($sql){
