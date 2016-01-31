@@ -26,6 +26,8 @@ interface MysqlPdoInterface{
 	public function update($table, $arrData, $where = '');
 
 	public function delete($table, $where='', $params=array());
+
+	public function select($table, $fields='*', $where_tail='', $params=array());
 }
 
 class MysqlPdoEnhance implements MysqlPdoInterface
@@ -82,7 +84,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		}
 
 		$stmt->execute();
-		if(preg_match('/^update|^insert/i', trim($sql))){
+		if(preg_match('/^update|^insert|^replace/i', trim($sql))){
 			return $stmt->rowCount();
 		}else{
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -128,11 +130,18 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 	}
 
 	public function delete($table, $where='', $params=array()){
-		$sql = 'DELETE FROM '.$table.' ';
+		$sql = 'DELETE FROM '.$table;
 		if($where){
 			$sql .= ' WHERE '.$where;
 		}
 		return $this->query($sql, $params);
 	}
 
+	public function select($table, $fields='*', $where_tail='', $params=array()){
+		$sql = 'SELECT '.$fields.' FROM '.$table;
+		if($where_tail){
+			$sql .= ' WHERE '.$where_tail;
+		}
+		return $this->query($sql, $params);
+	}
 }
