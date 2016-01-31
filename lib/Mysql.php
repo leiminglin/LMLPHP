@@ -104,9 +104,17 @@ class Mysql{
 	}
 
 	public function delete($table, $where=''){
-		$sql = 'DELETE FROM '.$table.' ';
+		$sql = 'DELETE FROM '.$table;
 		if($where){
 			$sql .= ' WHERE '.$where;
+		}
+		return $this->query($sql);
+	}
+
+	public function select($table, $fields='*', $where_tail=''){
+		$sql = 'SELECT '.$fields.' FROM '.$table;
+		if($where_tail){
+			$sql .= ' WHERE '.$where_tail;
 		}
 		return $this->query($sql);
 	}
