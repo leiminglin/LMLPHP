@@ -84,7 +84,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		}
 
 		$stmt->execute();
-		if(preg_match('/^update|^insert|^replace/i', trim($sql))){
+		if(preg_match('/^update|^insert|^replace|^delete/i', trim($sql))){
 			return $stmt->rowCount();
 		}else{
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);
