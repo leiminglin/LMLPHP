@@ -64,7 +64,17 @@ class Mysql{
 		$this->resource = null;
 	}
 
-	public function query($str) {
+	public function query($str, $params=array()) {
+		if($params){
+			foreach($params as $k=>$v){
+				$v = $this->escapeString($v);
+				if(is_int($k)){
+					$str = preg_replace('/\?/', "'".$v."'", $str, 1);
+				}else{
+					$str = preg_replace('/:'.$k.'/', "'".$v."'", $str, 1);
+				}
+			}
+		}
 		if($this->resource){
 			$this->free();
 		}
@@ -103,24 +113,24 @@ class Mysql{
 		return $this->query($sql);
 	}
 
-	public function delete($table, $where=''){
+	public function delete($table, $where='', $params=array()){
 		$sql = 'DELETE FROM '.$table;
 		if($where){
 			$sql .= ' WHERE '.$where;
 		}
-		return $this->query($sql);
+		return $this->query($sql, $params);
 	}
 
-	public function select($table, $fields='*', $where_tail=''){
+	public function select($table, $fields='*', $where_tail='', $params=array()){
 		$sql = 'SELECT '.$fields.' FROM '.$table;
 		if($where_tail){
 			$sql .= ' WHERE '.$where_tail;
 		}
-		return $this->query($sql);
+		return $this->query($sql, $params);
 	}
 
-	public function getOne($str){
-		$rs = $this->query($str);
+	public function getOne($str, $params=array()){
+		$rs = $this->query($str, $params);
 		return isset($rs[0])?$rs[0]:'';
 	}
 
