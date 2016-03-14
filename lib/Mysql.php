@@ -131,7 +131,7 @@ class Mysql{
 
 	public function getOne($str, $params=array()){
 		$rs = $this->query($str, $params);
-		return isset($rs[0])?$rs[0]:'';
+		return isset($rs[0])?$rs[0]:array();
 	}
 
 	public function getLastId(){
