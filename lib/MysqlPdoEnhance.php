@@ -92,8 +92,8 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 	}
 
 	public function getOne($sql, $params = array()){
-		$result = $this->query($sql, $params);
-		return isset($return[0]) ? $result[0] : array();
+		$rs = $this->query($sql, $params);
+		return isset($rs[0]) ? $rs[0] : array();
 	}
 
 	public function getLastId(){
