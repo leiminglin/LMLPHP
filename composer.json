@@ -1,0 +1,17 @@
+{
+    "name": "leiminglin/lmlphp",
+    "description": "the LMLPHP Framework",
+    "type": "framework",
+    "keywords": ["framework","lmlphp","lovely"],
+    "homepage": "http://lmlphp.com/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rhett",
+            "email": "leiminglin@126.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0"
+    }
+}
