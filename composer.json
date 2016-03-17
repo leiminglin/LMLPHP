@@ -14,5 +14,8 @@
     "require": {
         "php": ">=5.2.0"
     },
+    "autoload": {
+        "files": ["lml.min.php"]
+    },
     "minimum-stability": "dev" 
 }
