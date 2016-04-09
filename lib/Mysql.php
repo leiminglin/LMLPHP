@@ -68,10 +68,13 @@ class Mysql{
 		if($params){
 			foreach($params as $k=>$v){
 				$v = $this->escapeString($v);
+				if(!is_numeric($v)){
+					$v = "'".$v."'";
+				}
 				if(is_int($k)){
-					$str = preg_replace('/\?/', "'".$v."'", $str, 1);
+					$str = preg_replace('/\?/', $v, $str, 1);
 				}else{
-					$str = preg_replace('/:'.$k.'/', "'".$v."'", $str, 1);
+					$str = preg_replace('/:'.$k.'/', $v, $str, 1);
 				}
 			}
 		}
