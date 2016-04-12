@@ -59,7 +59,6 @@ function lml($s='') {
 class Lmlphp {
 
 	const appName = 'LMLPHP';
-	const version = '1.0';
 	private static $instance = '';
 	private static $split = '';
 	private static $filenamePrefix = 'debug_';
@@ -80,10 +79,10 @@ class Lmlphp {
 		define('IS_CGI',substr(PHP_SAPI, 0,3)=='cgi' ? 1 : 0 );
 		define('IS_WIN',strstr(PHP_OS, 'WIN') ? 1 : 0 );
 		define('IS_CLI',PHP_SAPI=='cli'? 1 : 0);
-		if( IS_WIN ){
-			define('ENDL', "\r\n");
+		if( strpos('a'.PHP_EOL, "\n") > 0 ) {
+			define('ENDL', PHP_EOL);
 		}else{
-			define('ENDL', "\n");
+			define('ENDL', PHP_EOL."\n");
 		}
 		if( IS_CLI ){
 			define('BR', "\n");
