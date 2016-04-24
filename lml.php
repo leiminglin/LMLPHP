@@ -825,7 +825,8 @@ class LmlApp{
 		$a = $path[1];
 		defined('C_MODULE') || define('C_MODULE', strtolower($path[0]));
 		defined('C_ACTION') || define('C_ACTION', strtolower($a));
-		$v = DEFAULT_THEME_PATH.(defined('C_GROUP')?C_GROUP.DIRECTORY_SEPARATOR:'').C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
+		$c_theme_path = defined('CURRENT_THEME_PATH') ? CURRENT_THEME_PATH : DEFAULT_THEME_PATH;
+		$v = $c_theme_path.(defined('C_GROUP')?C_GROUP.DIRECTORY_SEPARATOR:'').C_MODULE.DIRECTORY_SEPARATOR.C_ACTION.'.php';
 		if( class_exists($m) ){
 			$class = new ReflectionClass($m);
 		}else{
