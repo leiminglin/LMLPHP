@@ -23,7 +23,7 @@ interface MysqlPdoInterface{
 
 	public function insert($table, $arrData);
 
-	public function update($table, $arrData, $where = '');
+	public function update($table, $arrData, $where = '', $wparams=array());
 
 	public function delete($table, $where='', $params=array());
 
@@ -35,6 +35,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 	private static $config;
 	private static $instances;
 	private $db;
+	public $sqls = array();
 
 	private function __construct() {
 		$dsn = 'mysql:host='.self::$config['hostname'].';port='.self::$config['hostport'].';dbname='.self::$config['database'];
@@ -47,6 +48,9 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		if ($this->db->getAttribute(PDO::ATTR_DRIVER_NAME) != 'mysql') {
 			die("MySQL support not be enabled");
 		}
+
+		// fix sometimes no database selected
+		$this->db->exec('USE '.self::$config['database']);
 	}
 
 	public static function getInstance($config){
@@ -59,7 +63,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 	}
 
 	public function query($sql, $params = array()){
-		$stmt = $this->db->prepare($sql, array(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true));
+		$stmt = $this->db->prepare(trim($sql), array(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true));
 
 		if($params){
 			foreach ($params as $k => $v){
@@ -84,7 +88,11 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		}
 
 		$stmt->execute();
-		if(preg_match('/^update|^insert|^replace|^delete/i', trim($sql))){
+		if($stmt->errorCode() != '00000'){
+			throw new LmlException(implode("\n", $stmt->errorInfo()));
+		}
+		$this->sqls[] = array($sql, $params);
+		if(preg_match('/^update|^insert|^replace|^delete/i', $sql)){
 			return $stmt->rowCount();
 		}else{
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -115,7 +123,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		return $this->query($sql, $params);
 	}
 
-	public function update($table, $data, $where = ''){
+	public function update($table, $data, $where = '', $wparams=array()){
 		$sql = 'UPDATE '.$table.' SET ';
 		$params = array();
 		foreach ($data as $k=>$v){
@@ -126,7 +134,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		if($where){
 			$sql .= ' WHERE '.$where;
 		}
-		return $this->query($sql, $params);
+		return $this->query($sql, array_merge($params, $wparams));
 	}
 
 	public function delete($table, $where='', $params=array()){
@@ -143,5 +151,13 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 			$sql .= ' WHERE '.$where_tail;
 		}
 		return $this->query($sql, $params);
+	}
+	
+	public function getLastSql(){
+		return end($this->sqls);
+	}
+	
+	public function getSqls(){
+		return $this->sqls;
 	}
 }
