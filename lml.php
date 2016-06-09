@@ -681,7 +681,7 @@ class LmlApp{
 	}
 	
 	public function addDomain($domain){
-		if(!is_array($domain)){
+		if(!is_array($domain) || !isset($_SERVER['HTTP_HOST'])){
 			return $this;
 		}
 		foreach ($domain as $k=>$v){
