@@ -36,6 +36,7 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 	private static $instances;
 	private $db;
 	public $sqls = array();
+	public $debug = false;
 
 	private function __construct() {
 		$dsn = 'mysql:host='.self::$config['hostname'].';port='.self::$config['hostport'].';dbname='.self::$config['database'];
@@ -91,7 +92,9 @@ class MysqlPdoEnhance implements MysqlPdoInterface
 		if($stmt->errorCode() != '00000'){
 			throw new LmlException(implode("\n", $stmt->errorInfo()));
 		}
-		$this->sqls[] = array($sql, $params);
+		if ($this->debug) {
+			$this->sqls[] = array($sql, $params);
+		}
 		if(preg_match('/^update|^insert|^replace|^delete/i', $sql)){
 			return $stmt->rowCount();
 		}else{
