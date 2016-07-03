@@ -15,6 +15,8 @@ class Mysql{
 	private $link;
 	private $resource;
 	private static $instances;
+	public $sqls = array();
+	public $debug = false;
 
 	private function __construct($config){
 		if ( !extension_loaded('mysql') ) {
@@ -71,6 +73,8 @@ class Mysql{
 				if(!is_numeric($v)){
 					$v = "'".$v."'";
 				}
+				$v = str_replace('\\', '\\\\', $v);
+				$v = str_replace('$', '\$', $v);
 				if(is_int($k)){
 					$str = preg_replace('/\?/', $v, $str, 1);
 				}else{
@@ -80,6 +84,9 @@ class Mysql{
 		}
 		if($this->resource){
 			$this->free();
+		}
+		if($this->debug){
+			$this->sqls[] = $str;
 		}
 		$this->resource = mysql_query($str, $this->link);
 		if( false === $this->resource) {
@@ -104,7 +111,7 @@ class Mysql{
 		return $this->query($sql);
 	}
 
-	public function update($table, $arr, $where=''){
+	public function update($table, $arr, $where='', $params=array()){
 		$sql = 'UPDATE '.$table.' SET ';
 		foreach ($arr as $k=>$v){
 			$sql .= '`'.$k.'` = \''.$this->escapeString($v).'\',';
@@ -113,7 +120,7 @@ class Mysql{
 		if($where){
 			$sql .= ' WHERE '.$where;
 		}
-		return $this->query($sql);
+		return $this->query($sql, $params);
 	}
 
 	public function delete($table, $where='', $params=array()){
@@ -144,6 +151,9 @@ class Mysql{
 	public function execute($str) {
 		if ( $this->resource ) {
 			$this->free();
+		}
+		if($this->debug){
+			$this->sqls[] = $str;
 		}
 		$result = mysql_query($str, $this->link) ;
 		if ( false === $result) {
@@ -207,5 +217,12 @@ class Mysql{
 		throw new LmlDbException(mysql_error($this->link));
 	}
 
+	public function getLastSql(){
+		return end($this->sqls);
+	}
+	
+	public function getSqls(){
+		return $this->sqls;
+	}
 }
 class LmlDbException extends LmlException{}
