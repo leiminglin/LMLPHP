@@ -787,16 +787,16 @@ class LmlApp{
 		return $this;
 	}
 	
-	private function callUserFunc($cb){
+	private function callUserFunc($cb,$p=''){
 		if( count($cb) == 1 ){
 			if( function_exists($cb[0]) ){
-				call_user_func($cb[0]);
+				return call_user_func($cb[0],$p);
 			}else{
 				throw new LmlException('Function:'.$cb[0].' not found');
 			}
 		}else if( count($cb) == 2 ){
 			if( method_exists($cb[0], $cb[1]) ){
-				call_user_func($cb);
+				return call_user_func($cb,$p);
 			}else{
 				throw new LmlException('Class:'.$cb[0].',method:'.$cb[1].' not found');
 			}
@@ -920,20 +920,35 @@ class LmlApp{
 					$pos = 0;
 					foreach( $matches[0] as $v ){
 						$str = substr($o, $pos, $v[1]-$pos);
-						$this->output($str);
-						echo $v[0];
+						$this->preout($str);
+						$this->addout($v[0]);
 						$pos = $v[1] + strlen($v[0]);
 					}
 					$str = substr($o, $pos);
-					return $this->output($str);
+					$this->preout($str);
+					return $this->output();
 				}
 			}
 		}
-		$this->output($o);
+		$this->preout($o);
+		$this->output();
+	}
+
+	private $outstr = '';
+
+	private function preout($o){
+		$this->outstr .= $this->onesloc?str_replace(array("\t", "\r", "\n"), '', $o):$o;
+	}
+
+	private function addout($o){
+		$this->outstr .= $o;
 	}
 	
-	private function output($o){
-		echo $this->onesloc?str_replace(array("\t", "\r", "\n"), '', $o):$o;
+	private function output(){
+		if( isset($this->event['onOutput']) ){
+			$this->outstr = $this->callUserFunc( $this->event['onOutput'],$this->outstr );
+		}
+		echo $this->outstr;
 	}
 }
 
