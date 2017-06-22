@@ -922,7 +922,7 @@ class LmlApp{
 						$str = substr($o, $pos, $v[1]-$pos);
 						$this->preout($str);
 						if (substr($v[0],4,5)!='>') {
-							preg_match('/<pre[\s\S]*?\borigin\b[\s\S]*?>([\s\S]*?)<\/pre>/i', $v[0], $match2);
+							preg_match('/<pre[^>]*?\borigin\b[^>]*?>([\s\S]*?)<\/pre>/i', $v[0], $match2);
 							if (isset($match2[1])) {
 								$this->addout($match2[1]);
 								$pos = $v[1] + strlen($v[0]);
