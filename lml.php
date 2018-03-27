@@ -685,7 +685,7 @@ class LmlApp{
 			return $this;
 		}
 		foreach ($domain as $k=>$v){
-			if( $k==$_SERVER['HTTP_HOST'] ){
+			if( $k==$_SERVER['HTTP_HOST'] || $k==$_SERVER['SERVER_NAME'] ){
 				if( is_string($v) ){
 					$g = $v;
 				}else{
