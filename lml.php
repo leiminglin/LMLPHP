@@ -70,6 +70,7 @@ class Lmlphp {
 	private static $resval;
 	
 	private $app;
+	private $initScript;
 
 	private function __construct(){}
 
@@ -94,7 +95,7 @@ class Lmlphp {
 		return self::$instance = new self();
 	}
 	
-	private static function init(){
+	private function init(){
 		if(version_compare(PHP_VERSION,'5.4.0','<')) {
 			ini_set('magic_quotes_runtime',0);
 			define('MAGIC_QUOTES_GPC',get_magic_quotes_gpc()?true:false);
@@ -107,7 +108,6 @@ class Lmlphp {
 			$_COOKIE = self::deepStripSlashes($_COOKIE);
 		}
 		$p = DIRECTORY_SEPARATOR;
-		defined('PATH_PARAM') || define('PATH_PARAM', 'path');
 		define('SCRIPT_DIR', realpath(dirname($_SERVER['SCRIPT_FILENAME'])));
 		define('SCRIPT_PATH', SCRIPT_DIR.$p);
 		if( !defined('APP_DIR') ){
@@ -120,6 +120,8 @@ class Lmlphp {
 			$app_abs_dir = realpath(APP_DIR);
 		}
 		define('APP_PATH', $app_abs_dir.$p);
+
+		defined('PATH_PARAM') || define('PATH_PARAM', 'path');
 		defined('CONTENT_TYPE') || define('CONTENT_TYPE', 'text/html');
 		defined('CHARSET') || define('CHARSET', 'utf-8');
 		defined('MODULE_DIR_NAME') || define('MODULE_DIR_NAME', 'module');
@@ -127,13 +129,11 @@ class Lmlphp {
 		defined('LIB_DIR_NAME') || define('LIB_DIR_NAME', 'lib');
 		defined('LOG_DIR_NAME') || define('LOG_DIR_NAME', 'log');
 		defined('THEMES_DIR_NAME') || define('THEMES_DIR_NAME', 'themes');
-		defined('DEFAULT_THEME_NAME') || define('DEFAULT_THEME_NAME', 'default');
 		define('MODULE_PATH', APP_PATH.MODULE_DIR_NAME.$p);
 		define('MODEL_PATH', APP_PATH.MODEL_DIR_NAME.$p);
 		define('LIB_PATH', APP_PATH.LIB_DIR_NAME.$p);
 		define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
 		define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
-		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEME_NAME.$p);
 		define('WEB_PATH', preg_replace('/[^\/]+\.php$/', '', $_SERVER['SCRIPT_NAME']));
 		if( defined('IS_REWRITE_ON') && !IS_REWRITE_ON ){
 			preg_match('/([^\/]+\.php)$/', $_SERVER['SCRIPT_NAME'], $matches );
@@ -141,14 +141,23 @@ class Lmlphp {
 		}else{
 			define('WEB_APP_PATH', WEB_PATH);
 		}
-		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
-		date_default_timezone_set(TIMEZONE);
+
 		error_reporting(0);
 		set_error_handler(array('LmlErrHandle', 'onErr'));
 		set_exception_handler(array('LmlErrHandle', 'onException'));
 		register_shutdown_function(array('LmlErrHandle', 'onFatalErr'));
 		spl_autoload_register(array('LmlUtils', 'autoload'));
-		
+
+		$this->setInitScript(APP_PATH.'conf/init.php');
+		if ($this->initScript){
+			require_once $this->initScript;
+		}
+
+		defined('DEFAULT_THEME_NAME') || define('DEFAULT_THEME_NAME', 'default');
+		define('DEFAULT_THEME_PATH', THEMES_PATH.DEFAULT_THEME_NAME.$p);
+		defined('TIMEZONE') || define('TIMEZONE', 'PRC');
+		date_default_timezone_set(TIMEZONE);
+
 		return self::$instance;
 	}
 	
@@ -178,6 +187,15 @@ class Lmlphp {
 			return htmlspecialchars($v);
 		}
 		return $v;
+	}
+
+	public function setInitScript($file){
+		if ($this->initScript) {
+			return;
+		}
+		if (file_exists($file)) {
+			$this->initScript = $file;
+		}
 	}
 	
 	public function getResval(&$arg=''){
