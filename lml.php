@@ -577,6 +577,7 @@ class LmlErrHandle{
 				case E_CORE_ERROR:
 				case E_COMPILE_ERROR:
 				case E_USER_ERROR:
+				default:
 					$e['REQUEST_URI'] = IS_CLI?(isset($_SERVER['argv'][1])?$_SERVER['argv'][1].', ':'')
 					:$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 					$errstr = $e['REQUEST_URI'].', '.Lmlphp::appName.' Fatal Error:'.$e['message'].' in '.$e['file'].' line '.$e['line'];
