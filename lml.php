@@ -934,27 +934,27 @@ class LmlApp{
 			$p = strpos(substr($o, 0, 200), "<html>");
 			if(!($p===false)){
 				$o = substr($o, 0, $p).'<!--Powered By LMLPHP-->'.substr($o, $p);
-				preg_match_all('/<pre[^>]*?>[\s\S]*?<\/pre>/i', $o, $matches, PREG_OFFSET_CAPTURE);
-				if( isset($matches[0][0][1]) ){
-					$pos = 0;
-					foreach( $matches[0] as $v ){
-						$str = substr($o, $pos, $v[1]-$pos);
-						$this->preout($str);
-						if (substr($v[0],4,5)!='>') {
-							preg_match('/<pre[^>]*?\borigin\b[^>]*?>([\s\S]*?)<\/pre>/i', $v[0], $match2);
-							if (isset($match2[1])) {
-								$this->addout($match2[1]);
-								$pos = $v[1] + strlen($v[0]);
-								continue;
-							}
-						}
-						$this->addout($v[0]);
-						$pos = $v[1] + strlen($v[0]);
-					}
-					$str = substr($o, $pos);
+			}
+			preg_match_all('/<pre[^>]*?>[\s\S]*?<\/pre>/i', $o, $matches, PREG_OFFSET_CAPTURE);
+			if( isset($matches[0][0][1]) ){
+				$pos = 0;
+				foreach( $matches[0] as $v ){
+					$str = substr($o, $pos, $v[1]-$pos);
 					$this->preout($str);
-					return $this->output();
+					if (substr($v[0],4,5)!='>') {
+						preg_match('/<pre[^>]*?\borigin\b[^>]*?>([\s\S]*?)<\/pre>/i', $v[0], $match2);
+						if (isset($match2[1])) {
+							$this->addout($match2[1]);
+							$pos = $v[1] + strlen($v[0]);
+							continue;
+						}
+					}
+					$this->addout($v[0]);
+					$pos = $v[1] + strlen($v[0]);
 				}
+				$str = substr($o, $pos);
+				$this->preout($str);
+				return $this->output();
 			}
 		}
 		$this->preout($o);
