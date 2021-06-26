@@ -861,7 +861,7 @@ class LmlApp{
 		if( $class->isAbstract() ){
 			throw new LmlException(Lmlphp::appName.' Exception:Class '.$m.' is Abstact.');
 		}
-		if( self::$mInstances[$m.$a] ){
+		if(isset(self::$mInstances[$m.$a]) && self::$mInstances[$m.$a]){
 			$o = self::$mInstances[$m.$a];
 		}else{
 			$o = new $m;
