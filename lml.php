@@ -134,7 +134,7 @@ class Lmlphp {
 		define('LIB_PATH', APP_PATH.LIB_DIR_NAME.$p);
 		define('LOG_PATH', APP_PATH.LOG_DIR_NAME.$p);
 		define('THEMES_PATH', APP_PATH.THEMES_DIR_NAME.$p);
-		define('WEB_PATH', preg_replace('/[^\/]+\.php$/', '', $_SERVER['SCRIPT_NAME']));
+		defined('WEB_PATH') || IS_CLI ? define('WEB_PATH', '/') : define('WEB_PATH', preg_replace('/[^\/]+\.php$/', '', $_SERVER['SCRIPT_NAME']));
 		if( defined('IS_REWRITE_ON') && !IS_REWRITE_ON ){
 			preg_match('/([^\/]+\.php)$/', $_SERVER['SCRIPT_NAME'], $matches );
 			define('WEB_APP_PATH', WEB_PATH.$matches[1].'/');
